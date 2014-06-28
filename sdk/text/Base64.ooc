@@ -20,6 +20,7 @@ Base64: class {
 
     /**
      * Convert data at some memory location to Base64 and return a String.
+     * Directly assign to array should use rlength rather than length
      */
     encode: static func ~pointer (data: Octet*, length: SizeT) -> String {
         array: Octet[]
