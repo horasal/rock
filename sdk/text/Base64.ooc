@@ -26,6 +26,7 @@ Base64: class {
         array: Octet[]
         array rlength = length
         array data = data
+        array unitSize = Octet size
         encode(array)
     }
 
