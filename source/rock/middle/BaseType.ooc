@@ -290,8 +290,20 @@ BaseType: class extends Type {
         
         if(other instanceOf?(BaseType)) {
             if(ourRef == hisRef) {
-                // perfect match
-                return scoreSeed
+                /* Perfect Match
+                 * Consider we are match the function ~(Int, Int) and ~(Double, Double)
+                 * with argument list (Int, Double). If score against different type is
+                 * same, we will get it match on (Int, Int) which is unexpected.
+                 */
+                if(_floatingPoint == NumericState YES) return scoreSeed
+                if(_integer == NumericState YES) return scoreSeed/2
+                match (this getName()){
+                    case "CString" => scoreSeed/3
+                    case "String" => scoreSeed/3
+                    case "Char" => scoreSeed/3
+                    case => return scoreSeed/4
+                }
+                return scoreSeed/4
             }
 
             // if we are one of his addons, we're good
