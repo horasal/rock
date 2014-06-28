@@ -294,16 +294,21 @@ BaseType: class extends Type {
                  * Consider we are match the function ~(Int, Int) and ~(Double, Double)
                  * with argument list (Int, Double). If score against different type is
                  * same, we will get it match on (Int, Int) which is unexpected.
+                 * For other module also based on this score system, we only enable this
+                 * when type infer
                  */
-                if(_floatingPoint == NumericState YES) return scoreSeed
-                if(_integer == NumericState YES) return scoreSeed/2
-                match (this getName()){
-                    case "CString" => scoreSeed/3
-                    case "String" => scoreSeed/3
-                    case "Char" => scoreSeed/3
-                    case => return scoreSeed/4
+                if(scoreSeed == SCORE_SEED){
+                    if(_floatingPoint == NumericState YES) return scoreSeed
+                    if(_integer == NumericState YES) return scoreSeed>2 ? scoreSeed-2 : 0
+                    match (this getName()){
+                        case "String" => return scoreSeed>4 ? scoreSeed-4 : 0
+                        case "CString" => return scoreSeed>4 ? scoreSeed-4 : 0
+                        case "Char" => return scoreSeed>8 ? scoreSeed-8 : 0
+                        case "Bool" => return scoreSeed>8 ? scoreSeed-8 : 0
+                        case => return scoreSeed>16 ? scoreSeed-16 : 0
+                    }
                 }
-                return scoreSeed/4
+                return scoreSeed
             }
 
             // if we are one of his addons, we're good

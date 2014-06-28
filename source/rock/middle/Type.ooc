@@ -16,6 +16,7 @@ NumericState: enum {
 Type: abstract class extends Expression {
 
     SCORE_SEED := const static 1024
+    STRICT_SCORE_SEED := const static 2048
     NOLUCK_SCORE := const static -100000
 
     init: func ~type (.token) {
@@ -97,19 +98,19 @@ Type: abstract class extends Expression {
     }
 
     getStrictScore: func (other: This) -> Int {
-        score := getScoreImpl(other, This SCORE_SEED)
+        score := getScoreImpl(other, This STRICT_SCORE_SEED)
         if(score == -1) {
             // something needs resolving
             return -1
         }
-        if(score != This SCORE_SEED) {
+        if(score != This STRICT_SCORE_SEED) {
             //printf("Failing %s (%s) vs %s (%s) with strict score %d\n", toString(), getRef() ? getRef() token toString() : "(unknown)",
             //                                                            other toString(), other getRef() ? other getRef() token toString() : "(unknown)", score)
 
             // imperfect match, failing
             return This NOLUCK_SCORE
         }
-        score
+        SCORE_SEED
     }
 
     getScore: func (other: This) -> Int {
