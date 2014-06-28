@@ -1,5 +1,6 @@
 include stddef, stdlib, stdio, ctype, stdbool
 include ./Array
+include ./Type
 
 /**
  * objects
@@ -76,7 +77,8 @@ Array: cover from _lang_array__Array {
         get{ rlength }
         set(len){
             rlength = len
-            data = arrayRealloc(this)
+            if(data)
+                data = arrayRealloc(this)
         }
     }
 

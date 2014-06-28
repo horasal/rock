@@ -23,7 +23,7 @@ Base64: class {
      */
     encode: static func ~pointer (data: Octet*, length: SizeT) -> String {
         array: Octet[]
-        array length = length
+        array rlength = length
         array data = data
         encode(array)
     }
