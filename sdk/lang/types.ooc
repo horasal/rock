@@ -1,6 +1,5 @@
 include stddef, stdlib, stdio, ctype, stdbool
 include ./Array
-include ./Type
 
 /**
  * objects
