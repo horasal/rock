@@ -3,6 +3,7 @@
 import threading/Thread
 import structs/[Stack, LinkedList]
 import lang/Backtrace
+import os/Terminal
 
 include setjmp, assert, errno
 
@@ -148,9 +149,9 @@ Exception: class {
      */
     formatMessage: func -> String {
         if(origin)
-            "[%s in %s]: %s\n" format(class name toCString(), origin name toCString(), message ? message toCString() : "<no message>" toCString())
+            "[%s in %s]: %s\n" format(class name, origin name, message ? message : "<no message>")
         else
-            "[%s]: %s\n" format(class name toCString(), message ? message toCString() : "<no message>" toCString())
+            "[%s]: %s\n" format(class name, message ? message : "<no message>")
     }
 
     /**
@@ -165,7 +166,9 @@ Exception: class {
      * Print just the message
      */
     printMessage: func {
-        fprintf(stderr, "%s", formatMessage() toCString())
+        Terminal setFgColor(Color red)
+        formatMessage() println(stderr)
+        Terminal reset()
     }
 
     /**
