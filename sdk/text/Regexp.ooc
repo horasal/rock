@@ -52,8 +52,7 @@ Regexp: class {
     compile: static func ~withOptions(pattern: String, options: Int) -> This {
         p := Pcre compile(pattern toCString(), options, (Regexp errorMsg&) as Pointer, Regexp errorOffset&, null)
         if(!p) {
-            //TODO: once true exceptions work, throw an exception instead
-            return null
+            Exception new("Can't build regular expression at position %d." format(errorOffset)) throw()
         }
         return new(p)
     }
