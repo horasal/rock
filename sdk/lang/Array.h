@@ -4,7 +4,7 @@
 
 #ifdef __OOC_USE_GC__
 #define array_malloc GC_malloc
-#define array_realloc GC_REALLOC
+#define array_realloc GC_realloc
 #define array_free GC_free
 #else
 #define array_malloc(size) calloc(1, (size))
