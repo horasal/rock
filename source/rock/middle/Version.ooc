@@ -90,7 +90,7 @@ _addComplexBuiltinSpec: func (key, condition, prelude, afterword: String) {
 
     // Linux
     _addBuiltinSpec("linux",        "__linux__")
-    _addBuiltinSpec("cygwin",       "__CYGWIN__")
+    _addBuiltinSpec("cygwin",       "__CYGWIN__) && !defined(__WIN32__")
     _addBuiltinSpec("mingw",        "__MINGW32__")
     _addBuiltinSpec("mingw64",      "__MINGW64__")
 
