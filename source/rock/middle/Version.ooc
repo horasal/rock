@@ -95,7 +95,7 @@ _addComplexBuiltinSpec: func (key, condition, prelude, afterword: String) {
     _addBuiltinSpec("mingw64",      "__MINGW64__")
 
     // Apple
-    appleString := "__APPLE__) || defined(__MACH__"
+    appleString := "__APPLE__) && defined(__MACH__"
     _addBuiltinSpec("apple", appleString)
 
     applePrelude := "
@@ -117,10 +117,12 @@ _addComplexBuiltinSpec: func (key, condition, prelude, afterword: String) {
     _addBuiltinSpec("openbsd",      "__OpenBSD__")
     _addBuiltinSpec("netbsd",       "__NetBSD__")
     _addBuiltinSpec("dragonfly",    "__DragonFly__")
+    _addBuiltinSpec("bsd",    "__unix__) || (defined(__APPLE__) && defined(__MACH__)")
+
 
     // Other Unices
     _addBuiltinSpec("solaris",      "__sun) && defined(__SVR4")
-    _addBuiltinSpec("unix",         "__unix__")
+    _addBuiltinSpec("unix",         "__unix__ && !defined(__WIN32__")
 
     // BeOSes
     _addBuiltinSpec("beos",         "__BEOS__")
