@@ -122,7 +122,7 @@ _addComplexBuiltinSpec: func (key, condition, prelude, afterword: String) {
 
     // Other Unices
     _addBuiltinSpec("solaris",      "__sun) && defined(__SVR4")
-    _addBuiltinSpec("unix",         "__unix__ && !defined(__WIN32__")
+    _addBuiltinSpec("unix",         "__unix__) && !defined(__WIN32__")
 
     // BeOSes
     _addBuiltinSpec("beos",         "__BEOS__")
