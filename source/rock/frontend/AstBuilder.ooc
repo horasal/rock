@@ -512,8 +512,6 @@ AstBuilder: class {
 
     onPropertyDeclGetterStart: unmangled(nq_onPropertyDeclGetterStart) func {
         getter := FunctionDecl new("", token())
-        if(peek(PropertyDecl) type instanceOf?(CoverDecl))
-            getter isThisRef = true
         stack push(getter)
     }
 
