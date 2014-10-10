@@ -118,9 +118,6 @@ BinaryOp: class extends Expression {
                 ep := e as VariableAccess ref as PropertyDecl
                 if(ep inOuterSpace(trail)) {
                     fCall := FunctionCall new(e as VariableAccess expr, ep getGetterName(), token)
-                    trail push(this)
-                    fCall resolve(trail, res)
-                    trail pop(this)
                     return fCall
                 }
             }
