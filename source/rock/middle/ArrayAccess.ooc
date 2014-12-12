@@ -87,6 +87,10 @@ ArrayAccess: class extends Expression {
             if(!hasOverload) {
                 // If we do not find an overload, we must make sure the indices are valid (numeric or enum members) for raw arrays (C and ooc arrays)
                 for(index in indices) {
+                    if(index getType() == null){
+                            res wholeAgain(this, "index getType returns null")
+                            return Response LOOP
+                    }
                     if(!isValidIndex(index)) {
                         if (res fatal) {
                             res throwError(InvalidArrayIndex new(token, "Trying to access an array with an index of non numeric type %s without proper overload" format(index getType() ? index getType() toString() : "(nil)")))
@@ -132,6 +136,8 @@ ArrayAccess: class extends Expression {
                 return true
             }
         }
+
+        if(!index || !index getType()) return false
 
         // Just check whether the index is of a numeric type or of an enum type that gets translated to an integer in C anyway
         index getType() isNumericType() || (index getType() getRef() ? index getType() getRef() instanceOf?(EnumDecl) : false)
