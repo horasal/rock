@@ -184,9 +184,13 @@ SequenceDriver: class extends Driver {
 
         pool := ThreadPool new()
         pool parallelism = params parallelism
-        for(module in dirtyModules) {
-            thread := Thread new(||CGenerator new(params, module) write())
-            pool add(thread)
+        for((idx, module) in dirtyModules) {
+            version(unix || apple || windows){
+                thread := Thread new(|| CGenerator new(params, dirtyModules[idx]) write())
+                pool add(thread)
+            } else {
+                CGenerator new(params, module) write()
+            }
         }
         pool waitAll()
         pool destroy()
