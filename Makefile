@@ -13,7 +13,7 @@ PREFIX?=/usr
 MAN_INSTALL_PATH?=/usr/local/man/man1
 BIN_INSTALL_PATH?=$(PREFIX)/bin
 
-OOC?=rock
+OOC?=bin/rock
 OOC_CMD:=$(OOC) $(OOC_OWN_FLAGS) $(OOC_FLAGS)
 
 IS_BOOTSTRAP:=$(wildcard build/Makefile)
