@@ -35,7 +35,6 @@ ResourceQueue: class <T>{
 Worker: class <T> {
     thread: Thread
     resources: ResourceQueue<T>
-    finish := false
 
     init: func(=resources){
         thread = Thread new(|| this run())
@@ -48,22 +47,19 @@ Worker: class <T> {
     }
 
     start: func -> Bool{
-        if(thread) return thread start()
-        false
+        thread start()
     }
 
     wait: func -> Bool{
-        if(thread) return thread wait()
-        true
+        thread wait()
     }
 
     wait: func ~times (seconds: Double) -> Bool{
-        if(thread) return thread wait(seconds)
-        true
+        thread wait(seconds)
     }
 
     alive?: func -> Bool{
-        if(thread) return thread alive?()
+        thread alive?()
         false
     }
 }
@@ -90,16 +86,12 @@ ThreadPool: class <T> {
     }
 
     addWorker: func{
-        while(resourceQueue && !resourceQueue empty?()){
-            if(terminated) break
-
-            while(pool size < parallelism){
-                tw := newWorker()
-                tw start()
-                lock lock()
-                pool add(tw)
-                lock unlock()
-            }
+        while(pool size < parallelism){
+            tw := newWorker()
+            tw start()
+            lock lock()
+            pool add(tw)
+            lock unlock()
         }
     }
 
@@ -128,8 +120,5 @@ ThreadPool: class <T> {
     wait: func{
         workerMonitor wait()
         workerDestroy wait()
-        while(!pool empty?()){
-            pool removeAt(0) wait()
-        }
     }
 }
