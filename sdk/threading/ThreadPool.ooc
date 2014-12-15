@@ -65,21 +65,13 @@ Worker: class <T> {
 }
 
 ThreadPool: class <T> {
-    workerMonitor: Thread
-    workerDestroy: Thread
-
     pool: ArrayList<Worker<T>> = ArrayList<Worker<T>> new()
     resourceQueue: ResourceQueue<T>
     lock: Mutex = Mutex new()
     parallelism := System numProcessors()
     newWorker: Func() -> Worker<T>
 
-    terminated := false
-    
-    init: func(=resourceQueue, =newWorker){
-        workerMonitor = Thread new(||addWorker())
-        workerDestroy = Thread new(||destroyWorker())
-    }
+    init: func(=resourceQueue, =newWorker)
 
     destroy: func{
         lock destroy()
@@ -95,30 +87,13 @@ ThreadPool: class <T> {
         }
     }
 
-    destroyWorker: func{
-        while(pool size > 0 || (resourceQueue && !resourceQueue empty?())){
-            if(terminated && pool size == 0) break
-            if(pool size > 0){
-                pool[0] wait()
-                lock lock()
-                pool removeAt(0)
-                lock unlock()
-            }
-        }
-    }
-
     start: func{
-        workerMonitor start()
-        workerDestroy start()
+        addWorker()
     }
 
-    terminate: func{
-        terminated = true
-        wait()
-    }
-    
     wait: func{
-        workerMonitor wait()
-        workerDestroy wait()
+        while(!pool empty?()){
+            pool removeAt(0) wait()
+        }
     }
 }
