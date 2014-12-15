@@ -50,7 +50,7 @@ ThreadPool: class{
     }
 
     _waitForSlot: func{
-        clearPool()
+        //clearPool()
         if(pool size < parallelism) return
         waitFirst()
     }
