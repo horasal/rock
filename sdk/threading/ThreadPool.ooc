@@ -128,5 +128,8 @@ ThreadPool: class <T> {
     wait: func{
         workerMonitor wait()
         workerDestroy wait()
+        while(!pool empty?()){
+            pool removeAt(0) wait()
+        }
     }
 }
