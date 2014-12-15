@@ -48,6 +48,7 @@ Worker: class <T> {
     }
 
     start: func(=task){
+        while(status == ThreadStatus Work) Time sleepMicro(idleTime)
         status = ThreadStatus Work
     }
 
@@ -61,7 +62,6 @@ Worker: class <T> {
 
     alive?: func -> Bool{
         thread alive?()
-        false
     }
 }
 
