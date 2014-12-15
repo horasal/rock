@@ -1,53 +1,54 @@
-import os/System
+import os/[System, Time]
 import threading/Thread
 import structs/ArrayList
 
-ResourceQueue: class <T>{
-    pool: ArrayList<T> = ArrayList<T> new()
-    lock: Mutex = Mutex new()
-
-    init: func
-
-    destroy: func{ lock destroy() }
-
-    add: func(item: T){
-        lock lock()
-        pool add(item)
-        lock unlock()
-    }
-
-    pop: func -> T{
-        lock lock()
-        if(!pool empty?()){
-            data := pool removeAt(0)
-            lock unlock()
-            return data
-        }
-        lock unlock()
-        null
-    }
-
-    empty?: func -> Bool{
-        pool empty?()
-    }
+ThreadStatus: enum{
+    Idle,
+    Work,
+    Terminate
 }
 
 Worker: class <T> {
     thread: Thread
-    resources: ResourceQueue<T>
+    task: T
+    idleTime := 30
 
-    init: func(=resources){
+    status: ThreadStatus = ThreadStatus Idle
+
+    init: func{
         thread = Thread new(|| this run())
+        thread start()
     }
 
-    code: func (item: T) { }
+    code: func { }
 
     run: func{
-        while(!resources empty?()) code(resources pop())
+        while(status != ThreadStatus Terminate){
+            match(status){
+                case ThreadStatus Idle => Time sleepMicro(idleTime)
+                case ThreadStatus Work =>
+                    if(task){
+                        code()
+                        task = null
+                    }
+                    status = ThreadStatus Idle
+                case ThreadStatus Terminate => return
+                case => Time sleepMicro(idleTime)
+            }
+        }
     }
 
-    start: func -> Bool{
-        thread start()
+    terminate: func{
+        while(status == ThreadStatus Work) Time sleepMicro(idleTime)
+        status = ThreadStatus Terminate
+    }
+
+    isIdle?: func -> Bool{
+        status == ThreadStatus Idle
+    }
+
+    start: func(=task){
+        status = ThreadStatus Work
     }
 
     wait: func -> Bool{
@@ -66,34 +67,48 @@ Worker: class <T> {
 
 ThreadPool: class <T> {
     pool: ArrayList<Worker<T>> = ArrayList<Worker<T>> new()
-    resourceQueue: ResourceQueue<T>
     lock: Mutex = Mutex new()
     parallelism := System numProcessors()
     newWorker: Func() -> Worker<T>
 
-    init: func(=resourceQueue, =newWorker)
+    init: func(=newWorker)
 
     destroy: func{
         lock destroy()
     }
 
-    addWorker: func{
-        while(pool size < parallelism){
-            tw := newWorker()
-            tw start()
-            lock lock()
-            pool add(tw)
-            lock unlock()
+    addWorker: func -> Worker<T>{
+        tw := newWorker()
+        lock lock()
+        pool add(tw)
+        lock unlock()
+        tw
+    }
+
+    addTask: func(task: T){
+        if(pool size < parallelism){
+            addWorker() start(task)
+        } else {
+            w := idleWorker()
+            w start(task)
         }
     }
 
-    start: func{
-        addWorker()
+    idleWorker: func -> Worker<T>{
+        i := 0
+        while(true){
+            if(pool[i] isIdle?()){
+                return pool[i]
+            }
+            i += 1
+            i = i % pool size
+        }
+        null
     }
 
     wait: func{
         while(!pool empty?()){
-            pool removeAt(0) wait()
+            pool removeAt(0) terminate(). wait()
         }
     }
 }

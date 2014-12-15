@@ -183,24 +183,21 @@ SequenceDriver: class extends Driver {
         }
 
         version(unix || apple || windows){
-            queue := ResourceQueue<Module> new()
+            pool := ThreadPool<Module> new(|| ModuleWorker<Module> new(params))
+            pool parallelism = params parallelism
         }
 
         for(module in dirtyModules) {
             version(unix || apple || windows){
-                queue add(module)
+                pool addTask(module)
             }
             version(!(unix || apple || windows)){
                 CGenerator new(params, module) write()
             }
         }
         version(unix || apple || windows){
-            pool := ThreadPool<Module> new(queue, || ModuleWorker<Module> new(queue, params))
-            pool parallelism = params parallelism
-            pool start()
             pool wait()
             pool destroy()
-            queue destroy()
         }
 
         dirtyModules
@@ -320,12 +317,12 @@ SequenceDriver: class extends Driver {
 ModuleWorker: class<T> extends Worker<T>{
     param: BuildParams
 
-    init: func(.resources, =param){
-        super(resources)
+    init: func(=param){
+        super()
     }
 
-    code: func(item: T){
-        match(item){
+    code: func(){
+        match(task){
             case m: Module =>
                 CGenerator new(param, m) write()
             case => Exception new("Unexpected type of module!") throw()
