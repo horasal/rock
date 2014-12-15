@@ -184,10 +184,9 @@ SequenceDriver: class extends Driver {
 
         pool := ThreadPool new()
         pool parallelism = params parallelism
-        for((idx, module) in dirtyModules) {
+        for(module in dirtyModules) {
             version(unix || apple || windows){
-                //thread := Thread new(||CGenerator new(params, dirtyModules[idx]) write())
-                thread := ModuleThread new(CGenerator new(params, dirtyModules[idx]))
+                thread := ModuleThread new(CGenerator new(params, module))
                 pool add(thread)
             } else {
                 CGenerator new(params, module) write()
@@ -311,12 +310,18 @@ SequenceDriver: class extends Driver {
     }
 }
 
-ModuleThread: abstract class extends Thread{
+ModuleThread: class extends Thread{
     generator: CGenerator
+    thread: Thread
 
-    new: static func(=generator) -> This{
-        Thread new(||generator write()) as This
+    init: func(=generator){
+        thread = Thread new(||this generator write())
     }
+
+    start: func -> Bool{ thread start() }
+    wait: func -> Bool{ thread wait() }
+    wait: func ~timed (seconds: Double) -> Bool{ thread wait(seconds) }
+    alive?: func -> Bool { thread alive?() }
 }
 
 /**
