@@ -312,14 +312,16 @@ SequenceDriver: class extends Driver {
 }
 
 ModuleThread: class extends Thread{
-    module: ThreadLocal<Module>
-    param: ThreadLocal<BuildParams>
+    module: Module
+    param: BuildParams 
     thread: Thread
 
-    init: func(cparam: BuildParams, cmodule: Module){
-        module = ThreadLocal new(cmodule)
-        param = ThreadLocal new(cparam)
-        thread = Thread new(||CGenerator new(param get(), module get()) write())
+    init: func(=param, =module){
+        thread = Thread new(||this write())
+    }
+
+    write: func{
+        CGenerator new(param, module) write()
     }
 
     start: func -> Bool{ thread start() }

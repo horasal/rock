@@ -9,12 +9,12 @@ ThreadPool: class{
 
     init: func
 
-    add: func(t: Thread, start: Bool = true){
+    add: func(t: Thread){
         _waitForSlot()
         lock lock()
         pool add(t)
         lock unlock()
-        if(start) t start()
+        t start()
     }
 
     startAll: func {
@@ -45,8 +45,6 @@ ThreadPool: class{
         for(p in pool){
             if(p alive?()){
                 newpool add(p)
-            } else {
-                p wait()
             }
         }
         pool = newpool
