@@ -5,8 +5,9 @@ import structs/ArrayList
 Worker: class {
     thread: Thread
 
-    init: func{
+    init: func(start: Bool = true){
         thread = Thread new(|| this run())
+        if(start) start()
     }
 
     run: func{ }
@@ -44,7 +45,6 @@ ThreadPool: class{
         lock lock()
         pool add(t)
         lock unlock()
-        t start()
     }
 
     startAll: func {
@@ -75,6 +75,8 @@ ThreadPool: class{
         for(p in pool){
             if(p alive?()){
                 newpool add(p)
+            } else {
+                p wait()
             }
         }
         pool = newpool

@@ -192,6 +192,7 @@ SequenceDriver: class extends Driver {
                 CGenerator new(params, module) write()
             }
         }
+        pool startAll()
         pool waitAll()
         pool destroy()
 
@@ -314,8 +315,8 @@ ModuleWorker: class extends Worker{
     param: BuildParams
     module: Module
 
-    init: func(=param, =module){
-        super()
+    init: func(=param, =module, start: Bool = true){
+        super(start)
     }
 
     run: func{
