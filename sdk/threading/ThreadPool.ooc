@@ -45,6 +45,8 @@ ThreadPool: class{
         for(p in pool){
             if(p alive?()){
                 newpool add(p)
+            } else {
+                p wait()
             }
         }
         pool = newpool
