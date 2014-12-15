@@ -41,15 +41,18 @@ ThreadPool: class{
 
     clearPool: func{
         lock lock()
+        newpool:= ArrayList<Thread> new()
         for(p in pool){
-            if(!p alive?()){
-                pool remove(p)
+            if(p alive?()){
+                newpool add(p)
             }
         }
+        pool = newpool
         lock unlock()
     }
 
     _waitForSlot: func{
+        if(pool size < parallelism) return
         clearPool()
         if(pool size < parallelism) return
         waitFirst()
