@@ -195,7 +195,7 @@ SequenceDriver: class extends Driver {
             }
         }
         version(unix || apple || windows){
-            pool := ThreadPool<Module, ModuleWorker<Module>> new(queue, || ModuleWorker<Module> new(queue, params))
+            pool := ThreadPool<Module> new(queue, || ModuleWorker<Module> new(queue, params))
             pool parallelism = params parallelism
             pool start()
             pool wait()
@@ -325,10 +325,10 @@ ModuleWorker: class<T> extends Worker<T>{
     }
 
     code: func(item: T){
-        match(T){
+        match(item){
             case m: Module =>
                 CGenerator new(param, m) write()
-            case => 
+            case => Exception new("Unexpected type of module!") throw()
         }
     }
 }

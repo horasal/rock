@@ -68,7 +68,7 @@ Worker: class <T> {
     }
 }
 
-ThreadPool: class <T, W> {
+ThreadPool: class <T> {
     workerMonitor: Thread
     workerDestroy: Thread
 
@@ -104,13 +104,14 @@ ThreadPool: class <T, W> {
     }
 
     destroyWorker: func{
-        while(resourceQueue && !resourceQueue empty?()){
+        while(pool size > 0 || (resourceQueue && !resourceQueue empty?())){
             if(terminated && pool size == 0) break
-            if(pool size == 0) continue
-            pool[0] wait()
-            lock lock()
-            pool removeAt(0)
-            lock unlock()
+            if(pool size > 0){
+                pool[0] wait()
+                lock lock()
+                pool removeAt(0)
+                lock unlock()
+            }
         }
     }
 
