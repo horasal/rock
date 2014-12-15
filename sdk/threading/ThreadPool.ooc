@@ -2,14 +2,44 @@ import os/System
 import threading/Thread
 import structs/ArrayList
 
+Worker: class {
+    thread: Thread
+
+    init: func{
+        thread = Thread new(|| this run())
+    }
+
+    run: func{ }
+
+    start: func -> Bool{
+        if(thread) return thread start()
+        false
+    }
+
+    wait: func -> Bool{
+        if(thread) return thread wait()
+        true
+    }
+
+    wait: func ~times (seconds: Double) -> Bool{
+        if(thread) return thread wait(seconds)
+        true
+    }
+
+    alive?: func -> Bool{
+        if(thread) return thread alive?()
+        false
+    }
+}
+
 ThreadPool: class{
-    pool: ArrayList<Thread> = ArrayList<Thread> new()
+    pool: ArrayList<Worker> = ArrayList<Worker> new()
     lock: Mutex = Mutex new()
     parallelism := System numProcessors()
 
     init: func
 
-    add: func(t: Thread){
+    add: func(t: Worker){
         _waitForSlot()
         lock lock()
         pool add(t)
@@ -41,7 +71,7 @@ ThreadPool: class{
 
     clearPool: func{
         lock lock()
-        newpool:= ArrayList<Thread> new()
+        newpool:= ArrayList<Worker> new()
         for(p in pool){
             if(p alive?()){
                 newpool add(p)
