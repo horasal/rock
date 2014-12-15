@@ -182,22 +182,28 @@ SequenceDriver: class extends Driver {
             dirtyModules addAll(sourceFolder modules)
         }
 
-        pool := ThreadPool new()
-        pool parallelism = params parallelism
+        version(unix || apple || windows){
+            queue := ResourceQueue<Module> new()
+        }
+
         for(module in dirtyModules) {
             version(unix || apple || windows){
-                pool add(ModuleWorker new(params, module))
+                queue add(module)
             }
             version(!(unix || apple || windows)){
                 CGenerator new(params, module) write()
             }
         }
-        pool startAll()
-        pool waitAll()
-        pool destroy()
+        version(unix || apple || windows){
+            pool := ThreadPool<Module, ModuleWorker<Module>> new(queue, || ModuleWorker<Module> new(queue, params))
+            pool parallelism = params parallelism
+            pool start()
+            pool wait()
+            pool destroy()
+            queue destroy()
+        }
 
         dirtyModules
-
     }
 
     /**
@@ -311,16 +317,19 @@ SequenceDriver: class extends Driver {
     }
 }
 
-ModuleWorker: class extends Worker{
+ModuleWorker: class<T> extends Worker<T>{
     param: BuildParams
-    module: Module
 
-    init: func(=param, =module, start: Bool = true){
-        super(start)
+    init: func(.resources, =param){
+        super(resources)
     }
 
-    run: func{
-        CGenerator new(param, module) write()
+    code: func(item: T){
+        match(T){
+            case m: Module =>
+                CGenerator new(param, m) write()
+            case => 
+        }
     }
 }
 

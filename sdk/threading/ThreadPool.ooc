@@ -2,15 +2,50 @@ import os/System
 import threading/Thread
 import structs/ArrayList
 
-Worker: class {
-    thread: Thread
+ResourceQueue: class <T>{
+    pool: ArrayList<T> = ArrayList<T> new()
+    lock: Mutex = Mutex new()
 
-    init: func(start: Bool = true){
-        thread = Thread new(|| this run())
-        if(start) start()
+    init: func
+
+    destroy: func{ lock destroy() }
+
+    add: func(item: T){
+        lock lock()
+        pool add(item)
+        lock unlock()
     }
 
-    run: func{ }
+    pop: func -> T{
+        lock lock()
+        if(!pool empty?()){
+            data := pool removeAt(0)
+            lock unlock()
+            return data
+        }
+        lock unlock()
+        null
+    }
+
+    empty?: func -> Bool{
+        pool empty?()
+    }
+}
+
+Worker: class <T> {
+    thread: Thread
+    resources: ResourceQueue<T>
+    finish := false
+
+    init: func(=resources){
+        thread = Thread new(|| this run())
+    }
+
+    code: func (item: T) { }
+
+    run: func{
+        while(!resources empty?()) code(resources pop())
+    }
 
     start: func -> Bool{
         if(thread) return thread start()
@@ -33,64 +68,64 @@ Worker: class {
     }
 }
 
-ThreadPool: class{
-    pool: ArrayList<Worker> = ArrayList<Worker> new()
+ThreadPool: class <T, W> {
+    workerMonitor: Thread
+    workerDestroy: Thread
+
+    pool: ArrayList<Worker<T>> = ArrayList<Worker<T>> new()
+    resourceQueue: ResourceQueue<T>
     lock: Mutex = Mutex new()
     parallelism := System numProcessors()
+    newWorker: Func() -> Worker<T>
 
-    init: func
-
-    add: func(t: Worker){
-        _waitForSlot()
-        lock lock()
-        pool add(t)
-        lock unlock()
-    }
-
-    startAll: func {
-        for(p in pool){
-            p start()
-        }
-    }
-
-    waitAll: func -> Bool{
-        isSuc := true
-        while(!pool empty?()){
-            if(!waitFirst()) isSuc = false
-        }
-        isSuc
-    }
-
-    waitFirst: func -> Bool{
-        if(pool empty?()) return true
-        lock lock()
-        currentThread := pool removeAt(0)
-        lock unlock()
-        currentThread wait()
-    }
-
-    clearPool: func{
-        lock lock()
-        newpool:= ArrayList<Worker> new()
-        for(p in pool){
-            if(p alive?()){
-                newpool add(p)
-            } else {
-                p wait()
-            }
-        }
-        pool = newpool
-        lock unlock()
-    }
-
-    _waitForSlot: func{
-        if(pool size < parallelism) return
-        clearPool()
-        if(pool size < parallelism) return
-        waitFirst()
+    terminated := false
+    
+    init: func(=resourceQueue, =newWorker){
+        workerMonitor = Thread new(||addWorker())
+        workerDestroy = Thread new(||destroyWorker())
     }
 
     destroy: func{
         lock destroy()
+    }
+
+    addWorker: func{
+        while(resourceQueue && !resourceQueue empty?()){
+            if(terminated) break
+
+            while(pool size < parallelism){
+                tw := newWorker()
+                tw start()
+                lock lock()
+                pool add(tw)
+                lock unlock()
+            }
+        }
+    }
+
+    destroyWorker: func{
+        while(resourceQueue && !resourceQueue empty?()){
+            if(terminated && pool size == 0) break
+            if(pool size == 0) continue
+            pool[0] wait()
+            lock lock()
+            pool removeAt(0)
+            lock unlock()
+        }
+    }
+
+    start: func{
+        workerMonitor start()
+        workerDestroy start()
+    }
+
+    terminate: func{
+        terminated = true
+        wait()
+    }
+    
+    wait: func{
+        workerMonitor wait()
+        workerDestroy wait()
     }
 }
