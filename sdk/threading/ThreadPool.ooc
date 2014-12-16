@@ -1,114 +1,67 @@
-import os/[System, Time]
+import structs/LinkedList
 import threading/Thread
-import structs/ArrayList
+import threading/native/ConditionUnix
 
-ThreadStatus: enum{
-    Idle,
-    Work,
-    Terminate
+ThreadJob: class {
+	init: func (=body)
+	body: Func
 }
 
-Worker: class <T> {
-    thread: Thread
-    task: T
-    idleTime := 30
+ThreadPool: class {
+	jobs: LinkedList<ThreadJob>
+	threads: Thread[]
+	mutex: Mutex
+	condition: ConditionUnix
+	activeJobs: Int
 
-    status: ThreadStatus = ThreadStatus Idle
+	init: func (threadCount := 4) {
+		this threads = Thread[threadCount] new()
+		this jobs = LinkedList<ThreadJob> new()
+		this mutex = Mutex new()
+		this condition = ConditionUnix new()
 
-    init: func{
-        thread = Thread new(|| this run())
-        thread start()
-    }
+		for(i in 0..threadCount) {
+			threads[i] = Thread new(|| threadLoop())
+			threads[i] start()
+		}
+	}
+	threadLoop: func {
+		while(true) {
+			this mutex lock()
+			if(this jobs getSize() > 0) {
+				job := this jobs first()
+				jobs removeAt(0)
+				this mutex unlock()
+				job body()
+				this mutex lock()
+				this activeJobs -= 1
+				this mutex unlock()
+			} else {
+				this condition wait(this mutex)
+				this mutex unlock()
+			}
+		}
+	}
+	add: func (body: Func) {
+		this mutex lock()
+		this jobs add(ThreadJob new(body))
+		this activeJobs += 1
+		this condition broadcast()
+		this mutex unlock()
+	}
 
-    code: func { }
+	waitAll: func {
+		while(true) {
+			this mutex lock()
+			if (this activeJobs > 0) {
+				this mutex unlock()
+				Thread yield()
+			} else {
+				this mutex unlock()
+				break
+			}
+		}
+	}
 
-    run: func{
-        while(status != ThreadStatus Terminate){
-            match(status){
-                case ThreadStatus Idle => Time sleepMicro(idleTime)
-                case ThreadStatus Work =>
-                    if(task){
-                        code()
-                        task = null
-                    }
-                    status = ThreadStatus Idle
-                case ThreadStatus Terminate => return
-                case => Time sleepMicro(idleTime)
-            }
-        }
-    }
 
-    terminate: func{
-        while(status == ThreadStatus Work) Time sleepMicro(idleTime)
-        status = ThreadStatus Terminate
-    }
-
-    isIdle?: func -> Bool{
-        status == ThreadStatus Idle
-    }
-
-    start: func(=task){
-        while(status == ThreadStatus Work) Time sleepMicro(idleTime)
-        status = ThreadStatus Work
-    }
-
-    wait: func -> Bool{
-        thread wait()
-    }
-
-    wait: func ~times (seconds: Double) -> Bool{
-        thread wait(seconds)
-    }
-
-    alive?: func -> Bool{
-        thread alive?()
-    }
-}
-
-ThreadPool: class <T> {
-    pool: ArrayList<Worker<T>> = ArrayList<Worker<T>> new()
-    lock: Mutex = Mutex new()
-    parallelism := System numProcessors()
-    newWorker: Func() -> Worker<T>
-
-    init: func(=newWorker)
-
-    destroy: func{
-        lock destroy()
-    }
-
-    addWorker: func -> Worker<T>{
-        tw := newWorker()
-        lock lock()
-        pool add(tw)
-        lock unlock()
-        tw
-    }
-
-    addTask: func(task: T){
-        if(pool size < parallelism){
-            addWorker() start(task)
-        } else {
-            w := idleWorker()
-            w start(task)
-        }
-    }
-
-    idleWorker: func -> Worker<T>{
-        i := 0
-        while(true){
-            if(pool[i] isIdle?()){
-                return pool[i]
-            }
-            i += 1
-            i = i % pool size
-        }
-        null
-    }
-
-    wait: func{
-        while(!pool empty?()){
-            pool removeAt(0) terminate(). wait()
-        }
-    }
 }

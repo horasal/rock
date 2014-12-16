@@ -183,21 +183,19 @@ SequenceDriver: class extends Driver {
         }
 
         version(unix || apple || windows){
-            pool := ThreadPool<Module> new(|| ModuleWorker<Module> new(params))
-            pool parallelism = params parallelism
+            pool := ThreadPool new(params parallelism)
         }
 
         for(module in dirtyModules) {
             version(unix || apple || windows){
-                pool addTask(module)
+                pool add(|| CGenerator new(params, module) write())
             }
             version(!(unix || apple || windows)){
                 CGenerator new(params, module) write()
             }
         }
         version(unix || apple || windows){
-            pool wait()
-            pool destroy()
+            pool waitAll()
         }
 
         dirtyModules
@@ -311,22 +309,6 @@ SequenceDriver: class extends Driver {
 
         return 0
 
-    }
-}
-
-ModuleWorker: class<T> extends Worker<T>{
-    param: BuildParams
-
-    init: func(=param){
-        super()
-    }
-
-    code: func(){
-        match(task){
-            case m: Module =>
-                CGenerator new(param, m) write()
-            case => Exception new("Unexpected type of module!") throw()
-        }
     }
 }
 
