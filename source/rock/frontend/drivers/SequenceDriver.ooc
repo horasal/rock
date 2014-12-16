@@ -188,10 +188,11 @@ SequenceDriver: class extends Driver {
 
         for(module in dirtyModules) {
             version(unix || apple || windows){
-                pool add(|| CGenerator new(params, module) write())
+                //pool add(|| CGenerator new(params, module) write())
+                CGenerator new(params, module) write()
             }
             version(!(unix || apple || windows)){
-                //CGenerator new(params, module) write()
+                CGenerator new(params, module) write()
             }
         }
         version(unix || apple || windows){
