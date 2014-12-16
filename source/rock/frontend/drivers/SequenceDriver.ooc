@@ -191,7 +191,7 @@ SequenceDriver: class extends Driver {
                 pool add(|| CGenerator new(params, module) write())
             }
             version(!(unix || apple || windows)){
-                CGenerator new(params, module) write()
+                //CGenerator new(params, module) write()
             }
         }
         version(unix || apple || windows){
