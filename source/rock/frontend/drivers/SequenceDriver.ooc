@@ -176,7 +176,8 @@ SequenceDriver: class extends Driver {
         archive := sourceFolder archive
         if(archive exists?) {
             archive updateDirtyModules()
-            dirtyModules addAll(archive dirtyModules)
+            //dirtyModules addAll(archive dirtyModules)
+            dirtyModules addAll(sourceFolder modules)
         } else {
             // on first compile, we have no archive info
             dirtyModules addAll(sourceFolder modules)
