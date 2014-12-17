@@ -25,11 +25,8 @@ SequenceDriver: class extends Driver {
 
     pool := JobPool new()
 
-    tpool: ThreadPool  
-
     init: func (.params) {
         super(params)
-        tpool = ThreadPool new(params parallelism)
     }
 
     compile: func (module: Module) -> Int {
@@ -186,6 +183,9 @@ SequenceDriver: class extends Driver {
             dirtyModules addAll(sourceFolder modules)
         }
 
+        version(unix || apple || windows){
+            tpool := ThreadPool new(4)
+        }
 
         for(module in dirtyModules) {
             version(unix || apple || windows){
