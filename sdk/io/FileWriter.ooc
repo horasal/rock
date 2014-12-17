@@ -103,7 +103,7 @@ FileWriter: class extends Writer {
        Close this writer and free the associated system resources, if any.
      */
     close: func {
-        file close()
+        file flush(). close()
     }
 
     asPipe: func -> Pipe {

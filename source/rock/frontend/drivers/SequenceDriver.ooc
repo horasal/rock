@@ -184,7 +184,7 @@ SequenceDriver: class extends Driver {
         }
 
         version(unix || apple || windows){
-            tpool := ThreadPool new(4)
+            tpool := ThreadPool new(params parallelism)
         }
 
         for(module in dirtyModules) {
