@@ -25,8 +25,11 @@ SequenceDriver: class extends Driver {
 
     pool := JobPool new()
 
+    tpool: ThreadPool  
+
     init: func (.params) {
         super(params)
+        tpool = ThreadPool new(params parallelism)
     }
 
     compile: func (module: Module) -> Int {
@@ -176,23 +179,18 @@ SequenceDriver: class extends Driver {
         archive := sourceFolder archive
         if(archive exists?) {
             archive updateDirtyModules()
-            //dirtyModules addAll(archive dirtyModules)
+            dirtyModules addAll(archive dirtyModules)
             dirtyModules addAll(sourceFolder modules)
         } else {
             // on first compile, we have no archive info
             dirtyModules addAll(sourceFolder modules)
         }
 
-        version(unix || apple || windows){
-            tpool := ThreadPool new(params parallelism)
-        }
 
         for(module in dirtyModules) {
             version(unix || apple || windows){
                 tpool add(|| CGenerator new(params, module) write())
-                //CGenerator new(params, module) write()
-            }
-            version(!(unix || apple || windows)){
+            } else {
                 CGenerator new(params, module) write()
             }
         }
