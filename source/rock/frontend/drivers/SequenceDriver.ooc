@@ -189,7 +189,7 @@ SequenceDriver: class extends Driver {
 
         for(module in dirtyModules) {
             version(unix || apple || windows){
-                tpool add(|| CGenerator new(params, module) write())
+                tpool add(|| CGenerator new(params, ThreadLocal new(module) get()) write())
             } else {
                 CGenerator new(params, module) write()
             }
