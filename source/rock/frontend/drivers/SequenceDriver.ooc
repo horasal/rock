@@ -184,12 +184,12 @@ SequenceDriver: class extends Driver {
         }
 
         version(unix || apple || windows){
-            pool := ThreadPool new(params parallelism)
+            tpool := ThreadPool new(params parallelism)
         }
 
         for(module in dirtyModules) {
             version(unix || apple || windows){
-                pool add(|| CGenerator new(params, module) write())
+                tpool add(|| CGenerator new(params, module) write())
                 //CGenerator new(params, module) write()
             }
             version(!(unix || apple || windows)){
@@ -197,7 +197,7 @@ SequenceDriver: class extends Driver {
             }
         }
         version(unix || apple || windows){
-            pool waitAll()
+            tpool waitAll()
         }
 
         dirtyModules
