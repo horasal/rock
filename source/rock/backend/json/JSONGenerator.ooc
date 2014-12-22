@@ -16,7 +16,7 @@ import ../../middle/[Module, FunctionDecl, FunctionCall, Expression, Type,
 
 JSONGenerator: class extends Visitor {
 
-    VERSION := static "1.2.1"
+    VERSION := static "2.0.0"
 
     params: BuildParams
     outFile: File
@@ -75,11 +75,11 @@ JSONGenerator: class extends Visitor {
         if(type instanceOf?(FuncType)) {
             return generateFuncTag(type as FuncType, full)
         } else if(type instanceOf?(ArrayType)) {
-            return "array(%s)" format(resolveType(type as ArrayType inner))
+            return "array(%s)" format(resolveType(type as ArrayType inner, full))
         } else if(type instanceOf?(PointerType)) {
-            return "pointer(%s)" format(resolveType(type as PointerType inner))
+            return "pointer(%s)" format(resolveType(type as PointerType inner, full))
         } else if(type instanceOf?(ReferenceType)) {
-            return "reference(%s)" format(resolveType(type as ReferenceType inner))
+            return "reference(%s)" format(resolveType(type as ReferenceType inner, full))
         } else if(type instanceOf?(TypeList)) {
             buffer := Buffer new()
             buffer append("multi(")
@@ -87,7 +87,7 @@ JSONGenerator: class extends Visitor {
             for(subtype in type as TypeList types) {
                 if(isFirst) isFirst = false
                 else        buffer append(",")
-                buffer append(resolveType(subtype))
+                buffer append(resolveType(subtype, full))
             }
             buffer append(')')
             return buffer toString()
@@ -183,18 +183,18 @@ JSONGenerator: class extends Visitor {
         obj put("abstract", node isAbstract)
         /* `final` */
         obj put("final", node isFinal)
-         /* `fullName` */
-        obj put("fullName", node underName())
+         /* `nameFqn` */
+        obj put("nameFqn", node underName())
         /* `tag` */
         obj put("tag", node name as String)
         /* `doc` */
         obj put("doc", node doc)
         /* `extends` */
         if(node getSuperRef() != null) {
-            obj put("extendsFullName", node getSuperRef() getFullName())
+            obj put("extendsFqn", node getSuperRef() getFullName())
             obj put("extends", node getSuperRef() name as String)
         } else {
-            obj put("extendsFullName", null)
+            obj put("extendsFqn", null)
             obj put("extends", null)
         }
         /* generic types */
@@ -243,21 +243,29 @@ JSONGenerator: class extends Visitor {
         putVersion(node verzion, obj)
         /* `tag` */
         obj put("tag", node name as String)
-        /* `fullName` */
-        obj put("fullName", node underName())
+        /* `nameFqn` */
+        obj put("nameFqn", node underName())
         /* `extends` */
         if(node getSuperRef() != null) {
-            obj put("extendsFullName", node getSuperRef() getFullName())
+            obj put("extendsFqn", node getSuperRef() getFullName())
             obj put("extends", node getSuperRef() name as String)
         } else {
-            obj put("extendsFullName", null)
+            obj put("extendsFqn", null)
             obj put("extends", null)
         }
         /* `from` */
         if(node fromType != null) {
             obj put("from", node fromType toString())
+            fromRef := node fromType getRef()
+            match fromRef {
+                case td: TypeDecl =>
+                    obj put("fromFqn", td getFullName())
+                case =>
+                    obj put("fromFqn", "any")
+            }
         } else {
             obj put("from", null)
+            obj put("fromFqn", null)
         }
         /* `members` */
         members := Bag new()
@@ -327,8 +335,8 @@ JSONGenerator: class extends Visitor {
         else {
             obj put("unmangled", false)
         }
-        /* `fullName` */
-        obj put("fullName", node getFullName())
+        /* `nameFqn` */
+        obj put("nameFqn", node getFullName())
         /* `modifiers` */
         modifiers := Bag new()
         if(node isAbstract())
@@ -408,8 +416,8 @@ JSONGenerator: class extends Visitor {
         } else {
             obj put("extern", false)
         }
-        /* `fullName` */
-        obj put("fullName", node getFullName())
+        /* `nameFqn` */
+        obj put("nameFqn", node getFullName())
          /* `unmangled` */
         if(node isUnmangled()) {
             if(!node isUnmangledWithName())
@@ -504,7 +512,7 @@ JSONGenerator: class extends Visitor {
             elemInfo put("name", elem name) \
                     .put("tag", "enumElement(%s, %s)" format(node name, elem name)) \
                     .put("type", "enumElement") \
-                    .put("value", elem value toString()) \
+                    .put("value", elem value ? elem value toString() : null) \
                     .put("doc", "")
             if(elem isExtern()) {
                 // see `EnumDecl addElement`, elements always have an extern name if they are extern
