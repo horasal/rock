@@ -100,6 +100,12 @@ FileReader: class extends Reader {
         }) == 0
     }
 
+    peek: func -> Char{
+        c := read()
+        seek(-1, SeekMode CUR)
+        c
+    }
+
     mark: func -> Long {
         marker = file tell()
         marker

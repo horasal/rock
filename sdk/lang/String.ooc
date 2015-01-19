@@ -326,6 +326,10 @@ operator [] (string: String, index: Int) -> Char {
     string _buffer [index]
 }
 
+operator []= (string: String, index: Int, data: Char) -> Char {
+    string _buffer [index] = data
+}
+
 operator [] (string: String, range: Range) -> String {
     string substring(range min, range max)
 }
