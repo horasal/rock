@@ -117,6 +117,28 @@ BinarySequenceReader: class {
         bytesRead = 0
     }
 
+    hasNext?: func -> Bool { reader hasNext?() }
+
+    peekValue: func <T> (T: Class) -> T {
+        size := T size
+        bytesRead += size
+        value: T
+        array := value& as Octet*
+        // pull the bytes.
+        for (i in 0..size) {
+            array[i] = reader read() as Octet
+        }
+        if (endianness != ENDIANNESS) {
+            // Seq is big, system is endian?
+            // System is endian, seq is big?
+            // Reverse.
+            value = reverseBytes(value)
+        }
+
+        reader seek(-size, SeekMode CUR)
+        value
+    }
+
     pullValue: func <T> (T: Class) -> T {
         size := T size
         bytesRead += size
@@ -171,6 +193,14 @@ BinarySequenceReader: class {
         }
         s := Buffer new()
         for (i in 0..length) {
+            s append(u8() as Char)
+        }
+        String new(s)
+    }
+
+    string: func(length: SizeT) -> String{
+        s := Buffer new()
+        for(i in 0..length){
             s append(u8() as Char)
         }
         String new(s)
