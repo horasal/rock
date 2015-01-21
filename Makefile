@@ -37,19 +37,9 @@ prepare_bootstrap:
 	$(OOC) -driver=make rock.use --outpath=c-source -o=../bin/c_rock -v -pg +-w
 	@echo "Done!"
 
-boehmgc:
-	$(MAKE) boehmgc-clean
-	mkdir -p $(VENDOR_PREFIX)
-	mkdir -p vendor-build
-	(cd vendor-build && ../vendor/gc/configure --prefix=$(VENDOR_PREFIX) --disable-shared --enable-static && $(MAKE) && $(MAKE) install)
-	rm -rf vendor-build
-
-boehmgc-clean:
-	rm -rf vendor-prefix vendor-build
-
 # For c-source based rock releases, 'make bootstrap' will compile a version
 # of rock from the C sources in build/, then use that version to re-compile itself
-bootstrap: boehmgc 
+bootstrap:
 ifneq ($(IS_BOOTSTRAP),)
 	@echo "Creating bin/ in case it does not exist."
 	mkdir -p bin/
@@ -63,7 +53,7 @@ else
 	@exit 1
 endif
 
-half-bootstrap: boehmgc
+half-bootstrap: 
 	@echo "Creating bin/ in case it does not exist."
 	mkdir -p bin/
 	@echo "Compiling from C source"
