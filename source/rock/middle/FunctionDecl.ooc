@@ -1151,13 +1151,12 @@ FunctionDecl: class extends Declaration {
             ctxFreeCall args add(VariableAccess new(ctxDecl, token))
             //vbctx := VersionBlock new(VersionNegation new(VersionName new("gc", token), token), token)
             //vbctx body add(ctxFreeCall)
-            trail addLastStatInScope(ctxFreeCall)
+            trail addByLastUse(ctxDecl, this, ctxFreeCall)
 
             _unwrappedClosure = true
             context = trail clone()
             res wholeAgain(this, "Unwrapped closure")
         }
-
     }
 
     /**

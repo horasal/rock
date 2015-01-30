@@ -1,5 +1,6 @@
 import structs/[Stack, ArrayList]
-import ../[Node, Module, Statement, Scope, If, Else, Return]
+import ../[Node, Module, Statement, Scope, If, Else]
+import ../[Return, VariableDecl, FunctionCall, VariableAccess, ControlStatement]
 
 Trail: class extends Stack<Node> {
 
@@ -152,17 +153,49 @@ Trail: class extends Stack<Node> {
 
     }
 
-    addLastStatInScope: func(newcomer: Statement) -> Bool{
+    accessed: func(node: Node, v: VariableDecl) -> Bool{
+        if(node instanceOf?(FunctionCall)){
+            for(i in node as FunctionCall args){
+                if(accessed(i, v)) return true
+            }
+        } else if(node instanceOf?(VariableAccess)){
+            if(node as VariableAccess getRef() && node as VariableAccess getRef() instanceOf?(VariableDecl) && node as VariableAccess getRef() as VariableDecl name == v name){
+                return true
+            }
+        } else if(node instanceOf?(Scope)){
+            for(i in node as Scope list){
+                if(accessed(i, v)) return true
+            }
+        } else if(node instanceOf?(ControlStatement)){
+            for(i in node as ControlStatement body){
+                if(accessed(i, v)) return true
+            }
+        }
+        false
+    }
+
+    addByLastUse: func(ctx: VariableDecl, marker: Statement, newcomer: Statement) -> Bool{
         i := getSize() - 1
         while(i >= 0) {
             node := data get(i) as Node
             if(node instanceOf?(Scope)){
-                get(i) as Scope add(get(i) as Scope last() instanceOf?(Return) ? get(i) as Scope lastIndex() : get(i) as Scope lastIndex() + 1, newcomer)
-                return true
+                sc := node as Scope
+                last := 0
+                j := sc list size - 1
+                while(j >= sc list indexOf(marker)){
+                    if(accessed(sc list[j], ctx)){
+                        sc list add(j+1, newcomer)
+                        return true
+                    }
+                    j -= 1
+                }
+                // no access, we can free it after scope
+                return addAfterInScope(marker, newcomer)
             }
             i -= 1
         }
-        return false
+
+        false
     }
 
     /**
