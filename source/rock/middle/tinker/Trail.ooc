@@ -1,5 +1,5 @@
 import structs/[Stack, ArrayList]
-import ../[Node, Module, Statement, Scope, If, Else]
+import ../[Node, Module, Statement, Scope, If, Else, Return]
 
 Trail: class extends Stack<Node> {
 
@@ -150,6 +150,19 @@ Trail: class extends Stack<Node> {
         }
         return false
 
+    }
+
+    addLastStatInScope: func(newcomer: Statement) -> Bool{
+        i := getSize() - 1
+        while(i >= 0) {
+            node := data get(i) as Node
+            if(node instanceOf?(Scope)){
+                get(i) as Scope add(get(i) as Scope last() instanceOf?(Return) ? get(i) as Scope lastIndex() : get(i) as Scope lastIndex() + 1, newcomer)
+                return true
+            }
+            i -= 1
+        }
+        return false
     }
 
     /**

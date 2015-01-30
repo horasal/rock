@@ -1147,6 +1147,12 @@ FunctionDecl: class extends Declaration {
                 res throwError(CouldntReplace new(token, this, closureAcc, trail))
             }
 
+            ctxFreeCall := FunctionCall new("gc_free", token)
+            ctxFreeCall args add(VariableAccess new(ctxDecl, token))
+            //vbctx := VersionBlock new(VersionNegation new(VersionName new("gc", token), token), token)
+            //vbctx body add(ctxFreeCall)
+            trail addLastStatInScope(ctxFreeCall)
+
             _unwrappedClosure = true
             context = trail clone()
             res wholeAgain(this, "Unwrapped closure")
