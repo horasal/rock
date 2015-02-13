@@ -1151,7 +1151,6 @@ FunctionDecl: class extends Declaration {
             context = trail clone()
             res wholeAgain(this, "Unwrapped closure")
         }
-
     }
 
     /**
