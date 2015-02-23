@@ -1,11 +1,10 @@
 .PHONY: all clean mrproper prepare_bootstrap bootstrap install download-bootstrap rescue backup extensions extensions-clean
 .SILENT: extensions extensions-clean
 
-VENDOR_PREFIX:=$(PWD)/vendor-prefix
 PARSER_GEN:=greg
 NQ_PATH:=source/rock/frontend/NagaQueen.c
 OOC_WARN_FLAGS?=+-w
-OOC_OWN_FLAGS:=-v -pg -O3 $(OOC_WARN_FLAGS) -I$(VENDOR_PREFIX)/include -L$(VENDOR_PREFIX)/lib --gc=dynamic
+OOC_OWN_FLAGS:=-v -pg -O3 $(OOC_WARN_FLAGS) --gc=dynamic
 
 # used to be CC?=gcc, but that breaks on mingw where CC is set to 'cc' apparently
 CC=gcc
@@ -44,7 +43,7 @@ ifneq ($(IS_BOOTSTRAP),)
 	@echo "Creating bin/ in case it does not exist."
 	mkdir -p bin/
 	@echo "Compiling from C source"
-	cd build/ && ROCK_DIST=.. CFLAGS="-I$(VENDOR_PREFIX)/include" LDFLAGS="-L$(VENDOR_PREFIX)/lib" GC_PATH="-lgc" PREFIX=$(VENDOR_PREFIX) $(MAKE) -j4
+	cd build/ && ROCK_DIST=.. GC_PATH="-lgc" $(MAKE) -j4
 	@echo "Now re-compiling ourself"
 	OOC=bin/c_rock ROCK_DIST=. $(MAKE) self
 	@echo "Congrats! you have a boostrapped version of rock in bin/rock now. Have fun!"
