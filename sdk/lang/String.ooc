@@ -328,6 +328,7 @@ operator [] (string: String, index: Int) -> Char {
 
 operator []= (string: String, index: Int, data: Char) -> Char {
     string _buffer [index] = data
+    data
 }
 
 operator [] (string: String, range: Range) -> String {
