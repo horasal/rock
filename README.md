@@ -1,5 +1,18 @@
 [![Build Status](https://secure.travis-ci.org/fasterthanlime/rock.png?branch=master)](http://travis-ci.org/fasterthanlime/rock)
 
+## A fork of [rock](https://github.com/fasterthanlime/rock)
+
+### todo
+
+* match() case 1, 2, 3 =>
+* match() case 1..3 =>
+* fix reference to variables in nested closure
+* update grammar to avoid segment fault -> foo()(), a ::= 3 & call a as function
+* version block -> parser can not catch correct structure for version{ if else }else{}
+* inline function -> implementing
+* better array by template
+* cmake driver for windows
+
 # rock
 
   * [ooc](http://ooc-lang.org/)
