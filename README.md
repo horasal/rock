@@ -4,6 +4,10 @@
 
 ### todo
 
+* ~~add cmake driver~~ -> Partially Finished
+* ~~fix variables with nested closure~~ -> Finished
+* ~~ooc-doc only starts with /\* and //~~ -> Finished
+* ~~inconsistent slice~~ -> Fixed
 * ~~match() case 1, 2, 3 =>~~ -> Finished
 * match() case 1..3 =>
 * fix reference to variables in nested closure

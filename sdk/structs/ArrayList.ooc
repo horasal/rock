@@ -213,10 +213,10 @@ ArrayList: class <T> extends List<T> {
         if(min < 0 || min >= _size) OutOfBoundsException new(This, min, _size) throw()
 
         if(max < 0) max = _size + max
-        if(max < 0 || max >= _size) OutOfBoundsException new(This, max, _size) throw()
+        if(max < 0 || max > _size) OutOfBoundsException new(This, max, _size) throw()
+        if(min > max) IllegalRangeException new(This, min, max) throw()
 
-        // We use +1 since it's zero based, and we want the *size* instead of the last index
-        retSize := max - min + 1
+        retSize := max - min
 
         ret := This<T> new(retSize)
         /*for(i in min..(max + 1)) { // Used (max + 1) to compensate for Ranges being exclusive
@@ -283,6 +283,12 @@ IllegalIteratorOpException: class extends Exception {
         super(origin, message)
     }
 
+}
+
+IllegalRangeException: class extends Exception {
+    init: func (.origin, min, max: Int) {
+        super(origin, "Min Index %d is larger than Max Index %d !" format(min, max))
+    }
 }
 
 /* Operators */
