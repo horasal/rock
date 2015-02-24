@@ -122,6 +122,23 @@ Match: class extends Expression {
             }
         }
 
+        {
+            // unwrap listed expressions
+            currentsize := cases getSize()
+            for(idx in 0..currentsize){
+                caze := cases[idx]
+                if(caze list > 0){
+                    for(e in caze list){
+                        newcaze := caze clone()
+                        newcaze list clear()
+                        newcaze expr = e
+                        cases add(newcaze)
+                    }
+                    caze list clear()
+                }
+            }
+        }
+
         if(casesSize == -1) {
             casesSize = cases getSize()
         }
@@ -401,8 +418,8 @@ Match: class extends Expression {
 }
 
 Case: class extends ControlStatement {
-
     expr: Expression
+    list := ArrayList<Expression> new()
 
     init: func ~_case (.token) {
         super(token)
@@ -421,6 +438,7 @@ Case: class extends ControlStatement {
 
     getExpr: func -> Expression { expr }
     setExpr: func (=expr) {}
+    addExpr: func(e: Expression) { list add(e) }
 
     resolveAccess: func (access: VariableAccess, res: Resolver, trail: Trail) {
 
@@ -441,7 +459,6 @@ Case: class extends ControlStatement {
         }
 
         return body resolve(trail, res)
-
     }
 
     replace: func (oldie, kiddo: Node) -> Bool {

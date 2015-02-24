@@ -33,9 +33,9 @@ Else: class extends Conditional {
                     }
                 }
             ) 
-            if (!foundIf) 
+            if (!foundIf) {
                 res throwError(LonesomeElse new(this))
-
+            }
             
         }
         response := body resolve(trail, res)

@@ -1077,6 +1077,10 @@ AstBuilder: class {
         peek(Case) setExpr(v)
     }
 
+    onCaseExprList: unmangled(nq_onCaseExprList) func(v: Expression){
+        peek(Case) addExpr(v)
+    }
+
     onCaseEnd: unmangled(nq_onCaseEnd) func {
         caze := pop(Case)
         peek(Match) addCase(caze)
