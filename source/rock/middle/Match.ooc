@@ -14,6 +14,7 @@ Match: class extends Expression {
     cases := ArrayList<Case> new()
 
     unwrappedExpr := false
+    unwrappedCases := false
 
     casesResolved := 0
     casesSize := -1
@@ -122,7 +123,7 @@ Match: class extends Expression {
             }
         }
 
-        {
+        if(!unwrappedCases){
             // unwrap listed expressions
             currentsize := cases getSize()
             for(idx in 0..currentsize){
@@ -137,6 +138,7 @@ Match: class extends Expression {
                     caze list clear()
                 }
             }
+            unwrappedCases = true
         }
 
         if(casesSize == -1) {
