@@ -4,7 +4,7 @@
 
 ### todo
 
-* match() case 1, 2, 3 =>
+* ~~match() case 1, 2, 3 =>~~ -> Finished
 * match() case 1..3 =>
 * fix reference to variables in nested closure
 * update grammar to avoid segment fault -> foo()(), a ::= 3 & call a as function
