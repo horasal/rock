@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/fasterthanlime/rock.png?branch=master)](http://travis-ci.org/fasterthanlime/rock)
+[![Build Status](https://travis-ci.org/zhaihj/rock.svg?branch=master)](https://travis-ci.org/zhaihj/rock)
 
 ## A fork of [rock](https://github.com/fasterthanlime/rock)
 
