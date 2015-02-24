@@ -122,6 +122,7 @@ version (windows) {
 
 version (!windows) {
     include dlfcn
+    include gc | (GC_NO_DLOPEN=1)
 
     // flags modes
     RTLD_LAZY, RTLD_NOW, RTLD_GLOBAL, RTLD_LOCAL: extern Int
