@@ -769,6 +769,8 @@ FunctionDecl: class extends Declaration {
                         // Mangle the argument's name :D
                         arg fullName = "%s__%s" format(arg token module getUnderName(), arg name)
                         vdfe := VariableDecl new(null, arg getFullName(), constructCall, token)
+                        vdfe1 := VariableDecl new(null, arg getName(), VariableAccess new(vdfe, token), token)
+                        body add(0, vdfe1)
                         body add(0, vdfe)
                     }else if(args first() getType() getName() == "String"){
                         // replace (String[]) with (argc: Int, argv: CString*)
@@ -785,6 +787,8 @@ FunctionDecl: class extends Declaration {
                                           .add(VariableAccess new(argv, arg token))
                         arg fullName = "%s__%s" format(arg token module getUnderName(), arg name)
                         vdfe := VariableDecl new(null, arg getFullName(), constructCall, token)
+                        vdfe1 := VariableDecl new(null, arg getName(), VariableAccess new(vdfe, token), token)
+                        body add(0, vdfe1)
                         body add(0, vdfe)
                     }
                 }
