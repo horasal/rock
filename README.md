@@ -12,6 +12,7 @@
 * inline function -> implementing
 * better array by template
 * cmake driver for windows
+* common root for numbers -> implementing in branch:commentroot
 
 # rock
 
