@@ -10,8 +10,8 @@
 * ~~inconsistent slice~~ -> Fixed
 * ~~match() case 1, 2, 3 =>~~ -> Finished
 * match() case 1..3 =>
-* fix reference to variables in nested closure
-* ~update grammar to avoid segment fault -> foo()(), a ::= 3 & call a as function~ -> Fixed
+* fix reference to variables in nested closure -> Working
+* ~~update grammar to avoid segment fault -> foo()(), a ::= 3 & call a as function~~ -> Fixed
 * version block -> parser can not catch correct structure for version{ if else }else{}
 * inline function -> implementing
 * better array by template
