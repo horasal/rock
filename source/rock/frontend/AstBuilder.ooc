@@ -475,6 +475,9 @@ AstBuilder: class {
     }
 
     gotVarDecl: func (vd: VariableDecl) {
+        if(vd getName() == null){
+            params errorHandler onError(SyntaxError new(vd token, "Variable comes without a name"))
+        }
         hash := ac_X31_hash(vd getName())
         idx := reservedHashs indexOf(hash)
         if(idx != -1) {
@@ -811,9 +814,8 @@ AstBuilder: class {
         vDecl isGlobal = true // well, that's not true, but at least this way it won't be marked for partialing...
 
         commaSeq := CommaSequence new(expr token)
-        commaSeq body add(BinaryOp new(VariableAccess new(name, expr token), expr, OpType ass, expr token)) . add(call)
+        commaSeq body add(vDecl). add(call)
 
-        onStatement(vDecl)
         return commaSeq
     }
 
@@ -890,8 +892,8 @@ AstBuilder: class {
             case vd: VariableDecl =>
                 gotVarDecl(vd)
             case seq: CommaSequence =>
-                for(vd: VariableDecl in seq body) {
-                    gotVarDecl(vd)
+                for(vd: Statement in seq body) {
+                    onStatement(vd)
                 }
             case =>
                 gotStatement(stmt)
