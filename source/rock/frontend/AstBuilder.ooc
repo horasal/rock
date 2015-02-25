@@ -814,7 +814,9 @@ AstBuilder: class {
         vDecl isGlobal = true // well, that's not true, but at least this way it won't be marked for partialing...
 
         commaSeq := CommaSequence new(expr token)
-        commaSeq body add(vDecl). add(call)
+        commaSeq body add(vDecl).
+                    add(BinaryOp new(VariableAccess new(name, expr token), expr, OpType ass, expr token)).
+                    add(call)
 
         return commaSeq
     }
