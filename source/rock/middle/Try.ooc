@@ -72,6 +72,7 @@ Try: class extends ControlStatement {
 
         // else {
         else_ := Else new(token)
+        else_ setIf(if_)
         // match (_getException()) { ... }
         match_ := Match new(token)
         match_ setExpr(FunctionCall new("_getException", token))

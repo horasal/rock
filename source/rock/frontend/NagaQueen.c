@@ -3263,6 +3263,17 @@ YY_ACTION(void) yy_1_Block(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY
   tokenPos; nq_onBlockStart(core->this); ;
 #undef s
 }
+YY_ACTION(void) yy_1_Conditional(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
+{
+#define e G->val[-1]
+#define s G->val[-2]
+  yyprintf((stderr, "do yy_1_Conditional"));
+  yyprintfvTcontext(yytext);
+  yyprintf((stderr, "\n  {nq_onElseMatched(core->this, s, e); }\n"));
+  nq_onElseMatched(core->this, s, e); ;
+#undef e
+#undef s
+}
 YY_ACTION(void) yy_15_Stmt(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
 #define elseSpec G->val[-1]
@@ -9646,17 +9657,22 @@ YY_RULE(int) yy_Block(GREG *G)
   return 0;
 }
 YY_RULE(int) yy_Conditional(GREG *G)
-{  int yypos0= G->pos, yythunkpos0= G->thunkpos;  yyprintfv((stderr, "%s\n", "Conditional"));
+{  int yypos0= G->pos, yythunkpos0= G->thunkpos;  yyDo(G, yyPush, 2, 0, "yyPush");
+  yyprintfv((stderr, "%s\n", "Conditional"));
+  if (!yy_If(G))  goto l418;
+  yyDo(G, yySet, -2, 0, "yySet");
 
-  {  int yypos419= G->pos, yythunkpos419= G->thunkpos;  if (!yy_If(G))  goto l420;
-  goto l419;
-  l420:;	  G->pos= yypos419; G->thunkpos= yythunkpos419;  if (!yy_Else(G))  goto l418;
-
+  {  int yypos419= G->pos, yythunkpos419= G->thunkpos;  if (!yy_WS(G))  goto l419;
+  if (!yy_Else(G))  goto l419;
+  yyDo(G, yySet, -1, 0, "yySet");
+  yyDo(G, yy_1_Conditional, G->begin, G->end, "yy_1_Conditional");
+  goto l420;
+  l419:;	  G->pos= yypos419; G->thunkpos= yythunkpos419;
   }
-  l419:;	  yyprintf((stderr, "  ok   Conditional"));
+  l420:;	  yyprintf((stderr, "  ok   Conditional"));
   yyprintfGcontext;
   yyprintf((stderr, "\n"));
-
+  yyDo(G, yyPop, 2, 0, "yyPop");
   return 1;
   l418:;	  G->pos= yypos0; G->thunkpos= yythunkpos0;  yyprintfv((stderr, "  fail %s", "Conditional"));
   yyprintfvGcontext;

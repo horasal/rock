@@ -3,8 +3,12 @@ import Conditional, Expression, If, Node, Scope, Statement, Visitor
 import tinker/[Errors, Resolver, Response, Trail]
 
 Else: class extends Conditional {
+    parent: If
 
     init: func ~_else (.token) { super(null, token) }
+
+    setIf: func(=parent)
+    getIf: func -> If { parent }
 
     clone: func -> This {
         copy := new(token)
@@ -22,6 +26,7 @@ Else: class extends Conditional {
 
     resolve: func(trail: Trail, res: Resolver) -> Response {
         trail push(this)
+        /*
         scope := trail get(trail findScope()) as Scope
         // Check if an Else has got an If in front of it
         if (scope) {
@@ -31,12 +36,16 @@ Else: class extends Conditional {
                     if (scope list indexOf(elem) <= self) {
                         foundIf = true
                     }
-                }
+                } 
             ) 
             if (!foundIf) {
                 res throwError(LonesomeElse new(this))
             }
             
+        }
+        */
+        if (!parent) {
+            res throwError(LonesomeElse new(this))
         }
         response := body resolve(trail, res)
         trail pop(this)

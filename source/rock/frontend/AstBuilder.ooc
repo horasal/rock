@@ -1008,6 +1008,11 @@ AstBuilder: class {
         pop(Else)
     }
 
+    onElseMatched: unmangled(nq_onElseMatched) func(s: If, e: Else){
+        onStatement(s)
+        e setIf(s)
+    }
+
     // foreach
     onForeachStart: unmangled(nq_onForeachStart) func (decl, collec: Expression) {
         if(decl instanceOf?(Stack)) {
