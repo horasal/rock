@@ -10,8 +10,13 @@ matches?: func <T> (other: T) -> Bool{
     false
 }
 
-(1..5) matches?(1 as Int64) toString() println()
-(1..5) matches?(2 as Int32) toString() println()
-(1..5) matches?(3 as UInt32) toString() println()
-(1..5) matches?(4 as UInt64) toString() println()
-(1..5) matches?(5 as UInt8) toString() println()
+assert: func(a, b: Bool) {
+    if(a == b) "pass" println()
+    else Exception new("error") throw()
+}
+
+assert(matches?(1 as Int64), true)
+assert(matches?(2 as Int32), true)
+assert(matches?(3 as UInt32), true)
+assert(matches?(4 as UInt64), true)
+assert(matches?(5 as UInt8), false)
