@@ -18,6 +18,13 @@
 * cmake driver for windows
 * common root for numbers -> implementing in branch:commentroot
 * layer-wise function search
+* add function type scope
+with restriction of generic type, we can do :
+extend ArrayList<Int>{
+    //something
+}
+and make this only work for `Int`
+
 
 # rock
 
