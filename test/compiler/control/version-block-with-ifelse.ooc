@@ -7,7 +7,11 @@ version(windows) {
     "b" println()
   }
 } else {
-    "c" println()
+    if(true){
+        "c" println()
+    } else {
+        "d" println()
+    }
 }
 
 version(!windows) {
@@ -19,5 +23,9 @@ version(!windows) {
     "b" println()
   }
 } else {
-    "c" println()
+    if(true){
+        "c" println()
+    } else {
+        "d" println()
+    }
 }

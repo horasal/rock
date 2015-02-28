@@ -3269,8 +3269,8 @@ YY_ACTION(void) yy_1_Conditional(GREG *G, char *yytext, int yyleng, yythunk *thu
 #define s G->val[-2]
   yyprintf((stderr, "do yy_1_Conditional"));
   yyprintfvTcontext(yytext);
-  yyprintf((stderr, "\n  {nq_onElseMatched(core->this, s, e); }\n"));
-  nq_onElseMatched(core->this, s, e); ;
+  yyprintf((stderr, "\n  {nq_onElseMatched(core->this, s, e); yy=s; }\n"));
+  nq_onElseMatched(core->this, s, e); yy=s; ;
 #undef e
 #undef s
 }

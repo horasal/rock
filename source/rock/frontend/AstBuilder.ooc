@@ -1009,8 +1009,7 @@ AstBuilder: class {
     }
 
     onElseMatched: unmangled(nq_onElseMatched) func(s: If, e: Else){
-        onStatement(s)
-        e setIf(s)
+        s setElse(e)
     }
 
     // foreach
