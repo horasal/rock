@@ -10,14 +10,14 @@
 * ~~inconsistent slice~~ -> Fixed
 * ~~match() case 1, 2, 3 =>~~ -> Finished
 * match() case 1..3 =>
-* fix reference to variables in nested closure -> Working
+* ~~fix reference to variables in nested closure -> Working~~ -> Fixed
 * ~~update grammar to avoid segment fault -> foo()(), a ::= 3 & call a as function~~ -> Fixed
 * ~~version block -> parser can not catch correct structure for version{ if else }else{}~~ -> Fixed, but need review
 * inline function -> implementing
 * better array by template
 * cmake driver for windows
 * ~~common root for numbers -> implementing in branch:commentroot~~ -> Mostly fixed
-* layer-wise function search
+* layer-wise function search -> Working
 * add function type scope
 with restriction of generic type, we can do :
 extend ArrayList<Int>{
