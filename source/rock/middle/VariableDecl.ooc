@@ -431,6 +431,7 @@ VariableDecl: class extends Declaration {
 
                 // Find the first Scope that is the body of a function declaration in the top of the trail
                 scopeDepth := closureIndex - 1
+                oclosure := closure
                 while(scopeDepth > 0) {
                     maybeScope := trail get(scopeDepth, Node)
                     if(maybeScope instanceOf?(Scope)) {
@@ -460,7 +461,9 @@ VariableDecl: class extends Declaration {
                                 if(clsAccess && !closure clsAccesses contains?(clsAccess)) {
                                     closure clsAccesses add(clsAccess)
                                 }
+                                oclosure alreadyReference add(this)
                             }
+                            oclosure = closure
                         }
                     }
                     scopeDepth -= 1

@@ -115,6 +115,7 @@ FunctionDecl: class extends Declaration {
 
     _returnTypeResolvedOnce := false
 
+    alreadyReference := ArrayList<VariableDecl> new()
     partialByReference := ArrayList<VariableDecl> new()
     partialByValue := ArrayList<VariableDecl> new()
     clsAccesses := ArrayList<VariableAccess> new()
@@ -1060,7 +1061,11 @@ FunctionDecl: class extends Declaration {
                 eDeclType := PointerType new(e getType(), e getType() token)
                 eDecl := VariableDecl new(eDeclType, e getName(), token)
                 ctxStruct addVariable(eDecl)
-                elements add(AddressOf new(VariableAccess new(e, e token), token))
+                if(alreadyReference contains?(e)){
+                    elements add(VariableAccess new(e, e token))
+                } else {
+                    elements add(AddressOf new(VariableAccess new(e, e token), token))
+                }
             }
 
             // add the context struct's cover to the Module so we can actually use it
