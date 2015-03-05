@@ -420,6 +420,15 @@ VariableDecl: class extends Declaration {
                     }
                 }
 
+                // If the variable has been defined in the closure body, we don't need to mark it for partialing
+                definedInClosure? := closure getBody() list ? closure getBody() list contains?(this) : false
+                if(closure isAnon && !isGlobal && !definedInClosure? &&
+                    !closure args contains?(|arg| arg == this || arg name == this name + "_generic")) {
+                    closure markForPartialing(this, mode)
+                    if(clsAccess) closure clsAccesses add(clsAccess)
+                }
+                if(isGlobal || definedInClosure?) return
+
                 // Find the first Scope that is the body of a function declaration in the top of the trail
                 scopeDepth := closureIndex - 1
                 while(scopeDepth > 0) {
@@ -442,6 +451,7 @@ VariableDecl: class extends Declaration {
                                 }
                                 intermediateScopeIndex -= 1
                             }
+                            if(isDefined?) break
                             // Only partial the variable in the top function if it has not be defined by it and it is not one of its arguments
                             if(closure isAnon && !closure args contains?(|arg| arg name == name || arg name == name + "_generic") \
                                 && !isDefined?) {
@@ -454,14 +464,6 @@ VariableDecl: class extends Declaration {
                         }
                     }
                     scopeDepth -= 1
-                }
-
-                // If the variable has been defined in the closure body, we don't need to mark it for partialing
-                definedInClosure? := closure getBody() list ? closure getBody() list contains?(this) : false
-                if(closure isAnon && !isGlobal && !definedInClosure? &&
-                    !closure args contains?(|arg| arg == this || arg name == this name + "_generic")) {
-                    closure markForPartialing(this, mode)
-                    if(clsAccess) closure clsAccesses add(clsAccess)
                 }
             }
         }
