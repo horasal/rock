@@ -381,7 +381,7 @@ FunctionCall: class extends Expression {
                 fDecl := trail get(trail find(FunctionDecl), FunctionDecl)
                 superTypeDecl := fDecl owner getSuperRef()
                 finalScore := 0
-                ref = superTypeDecl getMeta() getFunction(fDecl getName(), null, this, finalScore&)
+                ref = superTypeDecl getMeta() getFunction(fDecl getName(), suffix, this, finalScore&)
                 if(finalScore == -1) {
                     res wholeAgain(this, "something in our typedecl's functions needs resolving!")
                     return Response OK
@@ -1327,6 +1327,8 @@ FunctionCall: class extends Expression {
             score += 1
         }
 
+        score += distance(decl)
+
         if(declArgs getSize() == 0) return score
 
         declIter : Iterator<Argument> = declArgs iterator()
@@ -1386,6 +1388,19 @@ FunctionCall: class extends Expression {
         }
 
         return score
+    }
+
+    distance: func(decl: FunctionDecl) -> Int{
+        score := 0
+        if(ref == null || ref getOwner() == null || decl == null || decl getOwner() == null) return score
+        tdecl := ref getOwner()
+        vdecl := decl getOwner()
+        while(tdecl != null && tdecl name != vdecl name){
+            score -= 1
+            tdecl = tdecl getSuperRef()
+        }
+        if(tdecl == null) return 0
+        score*2
     }
 
     /**
