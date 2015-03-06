@@ -24,6 +24,7 @@ extend ArrayList<Int>{
     //something
 }
 and make this only work for `Int`
+* and more... check [commits list](https://github.com/zhaihj/rock/commits/master) to find more fixed issues in this fork
 
 
 # rock
