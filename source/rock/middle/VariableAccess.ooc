@@ -558,7 +558,7 @@ VariableAccess: class extends Expression {
         expr ? (expr toString() + " " + prettyName) : prettyName
     }
 
-    isReferencable: func -> Bool { true }
+    isReferencable: func -> Bool { ref && ref instanceOf?(VariableDecl) && (ref as VariableDecl isExtern() && ref as VariableDecl isConst()) ? false : true }
 
     replace: func (oldie, kiddo: Node) -> Bool {
         match oldie {
