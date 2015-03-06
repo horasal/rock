@@ -419,6 +419,9 @@ FunctionCall: class extends Expression {
                             message += " (you can't call methods on generic types! you have to cast them first)"
                         } else if (ref) {
                             message += "\n\n>> Closest match: %s\n" format(ref toString())
+                            if(ref isStatic() && ref isMember()){
+                                res throwError( Warning new(token, "If you want to call a static function with out current instance, you should use Class name instead of Instance name"))
+                            }
                         }
                         res throwError(UnresolvedCall new(this, message, ""))
                     }
@@ -527,6 +530,10 @@ FunctionCall: class extends Expression {
                         message = "No such function %s%s for `%s`" format(prettyName, getArgsTypesRepr(), expr getType() toString())
                         if (ref) {
                             message += "\n\n>> Closest match: %s\n" format(ref toString())
+                            if(ref isStatic() && ref isMember()){
+                                res throwError(Warning new(expr ? expr token : token,
+                                "If you want to call a static function with out current instance, you should use Class name instead of Instance name"))
+                            }
                         }
                     }
                 }
