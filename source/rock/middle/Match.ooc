@@ -198,13 +198,49 @@ Match: class extends Expression {
                             }
                             // inject the variable
                             // add the vDecl
+                            needunwrap := false
+                            if(expr instanceOf?(VariableDecl)){
+                                if(expr as VariableDecl name == vDecl name){
+                                    needunwrap = true
+                                }
+                            } else if(expr instanceOf?(VariableAccess)){
+                                ve := expr as VariableAccess
+                                if(ve getRef() && ve getRef() instanceOf?(VariableDecl)){
+                                    if((ve getRef() as VariableDecl) name == vDecl name){
+                                        needunwrap = true
+                                    }
+                                }
+                            }
                             caze addFirst(vDecl)
 
-                            // add the Assignment (with a cast, to mute gcc)
-                            acc := VariableAccess new(vDecl, caseToken)
-                            cast := Cast new(getExpr(), vDecl getType(), caseToken)
-                            ass := BinaryOp new(acc, cast, OpType ass, caseToken)
-                            caze addAfter(vDecl, ass)
+                            if(needunwrap){
+                                /*
+                                 match(a){
+                                 case a: Int =>
+                                 }
+
+                                 ->
+
+                                 match(T){
+                                 case Int =>
+                                    acase = a
+                                    a : Int
+                                    a = acase
+                                 }
+                                 */
+                                vcast := Cast new(getExpr(), vDecl getType(), caseToken)
+                                vDecl1 := VariableDecl new(vDecl getType(), generateTempName(vDecl name + "case"), vcast, vcast token)
+                                caze addFirst(vDecl1)
+                                acc := VariableAccess new(vDecl, caseToken)
+                                ass := BinaryOp new(acc, VariableAccess new(vDecl1, caseToken), OpType ass, caseToken)
+                                caze addAfter(vDecl, ass)
+                            } else {
+                                // add the Assignment (with a cast, to mute gcc)
+                                acc := VariableAccess new(vDecl, caseToken)
+                                cast := Cast new(getExpr(), vDecl getType(), caseToken)
+                                ass := BinaryOp new(acc, cast, OpType ass, caseToken)
+                                caze addAfter(vDecl, ass)
+                            }
                         } else {
                             // try to use 'matches?' but only if we're not in the fatal round,
                             // otherwise we'll get misleading errors.
