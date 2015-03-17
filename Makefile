@@ -85,7 +85,7 @@ download-bootstrap:
 	rm -rf build/
 	# Note: ./utils/downloader tries curl, ftp, and then wget.
 	#        GNU ftp will _not_ work: it does not accept a url as an argument.
-	./utils/downloader.sh https://github.com/zhaihj/rock/releases/download/v0.9.10/lastest-boostrap.tar.bz2
+	./utils/downloader.sh https://github.com/zhaihj/rock/releases/download/v0.9.10/lastest-boostrap.tar.bz2 | tar xjmf - 1>/dev/null
 	if [ ! -e build ]; then cp -rfv rock-*/build ./; fi
 
 # Attempt to grab a rock bootstrap from Alpaca and recompile
