@@ -764,7 +764,7 @@ BinaryOp: class extends Expression {
 
         if(args getSize() != 2) {
             match (symbol) {
-                case "-" || "+" =>
+                case "-" , "+" , "-=", "+=" =>
                     if (args getSize() == 1) {
                         // correct, but not the right overload type - skip
                         return 0
