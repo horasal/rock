@@ -52,13 +52,11 @@ BacktraceHandler: class {
         } else {
             // fall back on execinfo? still informative
             version (linux || apple) {
-                stderr write("[lang/Backtrace] Falling back on execinfo.. (build extension if you want fancy backtraces)\n")
                 length := backtrace(buffer, BACKTRACE_LENGTH)
                 return Backtrace new(buffer, length)
             }
 
             // no such luck, use a debugger :(
-            stderr write("[lang/Backtrace] No backtrace extension nor execinfo - use a debugger!\n")
             return null
         }
     }
