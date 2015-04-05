@@ -15,9 +15,7 @@
 * ~~layer-wise function search -> Working~~ -> Fixed
 * ~~version block -> parser can not catch correct structure for version{ if else }else{}~~ -> Fixed, but need review
 * inline function -> implementing
-* match() case 1..3 =>
 * better array by template
-* cmake driver for windows
 * add function type scope
 with restriction of generic type, we can do :
 extend ArrayList<Int>{
