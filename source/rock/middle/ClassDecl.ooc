@@ -47,6 +47,12 @@ ClassDecl: class extends TypeDecl {
             isCompoundCover := isCover && meat as CoverDecl fromType == null
 
             if(isClass) {
+                if(superType && superType getRef() && superType getRef() instanceOf?(ClassDecl) && 
+                superType getRef() as ClassDecl getNonMeta() instanceOf?(ClassDecl) &&
+                superType getRef() as ClassDecl getNonMeta() as ClassDecl isFinal){
+                    res throwError(ExtendFinalClass new(this, superType getRef() as ClassDecl))
+                }
+
                 if(!functions contains?(This DEFAULTS_FUNC_NAME)) {
                     addFunction(FunctionDecl new(This DEFAULTS_FUNC_NAME, token))
                 }
@@ -290,4 +296,12 @@ AnonymousFunctionDecl: class extends Error{
 
 NoDefaultConstructorError: class extends Error {
     init: super func ~tokenMessage
+}
+
+ExtendFinalClass: class extends Error {
+    init: func(first, second: ClassDecl){
+        super(first token, "Super-class of '%s' can not be final." format(first getName()))
+        next = InfoError new(second token, "...definition of super-class was here:")
+    }
+
 }
