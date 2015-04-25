@@ -2,7 +2,7 @@ import structs/List
 import ../frontend/[Token,BuildParams]
 import Visitor, Statement, Expression, Node, FunctionDecl, FunctionCall,
        VariableAccess, VariableDecl, AddressOf, ArrayAccess, If,
-       BinaryOp, Cast, Type, TypeList, Module, Tuple
+       BinaryOp, Cast, Type, TypeList, Module, Tuple, Scope
 import tinker/[Response, Resolver, Trail, Errors]
 
 Return: class extends Statement {
@@ -198,6 +198,22 @@ Return: class extends Statement {
                 // ass needs to be created now because returnExpr might've changed
                 ass := BinaryOp new(returnAcc, returnExpr, OpType ass, token)
                 if1 getBody() add(ass)
+                if(returnExpr instanceOf?(VariableAccess) && returnExpr as VariableAccess getRef() &&
+                    returnExpr as VariableAccess getRef() instanceOf?(VariableDecl) &&
+                    returnExpr as VariableAccess getRef() as VariableDecl getType() &&
+                    returnExpr as VariableAccess getRef() as VariableDecl getType() isGeneric()
+                ){
+                    index := trail findScope()
+                    if(index >= 0){
+                        s := trail get(index) as Scope
+                        idx := s list indexOf(returnExpr as VariableAccess getRef())
+                        if(idx != -1){
+                            freeCall := FunctionCall new("gc_free", token)
+                            freeCall getArguments() add(VariableAccess new(returnExpr as VariableAccess getName(), token))
+                            if1 getBody() add(freeCall)
+                        }
+                    }
+                }
 
                 if(!trail peek() addBefore(this, if1)) {
                     res throwError(CouldntAddBefore new(token, this, if1, trail))
