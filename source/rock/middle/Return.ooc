@@ -203,15 +203,21 @@ Return: class extends Statement {
                     returnExpr as VariableAccess getRef() as VariableDecl getType() &&
                     returnExpr as VariableAccess getRef() as VariableDecl getType() isGeneric()
                 ){
-                    index := trail findScope()
-                    if(index >= 0){
-                        s := trail get(index) as Scope
-                        idx := s list indexOf(returnExpr as VariableAccess getRef())
-                        if(idx != -1){
-                            freeCall := FunctionCall new("gc_free", token)
-                            freeCall getArguments() add(VariableAccess new(returnExpr as VariableAccess getName(), token))
-                            if1 getBody() add(freeCall)
+                    index := trail getSize() - 1
+                    while(index >= 0){
+                        if(trail get(index) instanceOf?(Scope)){
+                            s := trail get(index) as Scope
+                            idx := s list indexOf(returnExpr as VariableAccess getRef())
+                            if(idx != -1){
+                                freeCall := FunctionCall new("gc_free", token)
+                                freeCall getArguments() add(VariableAccess new(returnExpr as VariableAccess getName(), token))
+                                if1 getBody() add(freeCall)
+                            }
+                            if(trail get(index) instanceOf?(FunctionDecl)){
+                                break
+                            }
                         }
+                        index -= 1
                     }
                 }
 
