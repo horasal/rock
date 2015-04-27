@@ -407,7 +407,7 @@ Module: class extends Node {
 
     resolveCallNonRecursive: func (call: FunctionCall, res: Resolver, trail: Trail) {
 
-        //printf(" >> Looking for function %s in module %s!\n", call name, fullName)
+        //printf(" >> Looking for function %s in module %s!\n", call name toCString(), fullName toCString())
 
         functions getEach(call name, |fDecl|
             if (call suffix && fDecl suffix != call suffix) {
@@ -418,6 +418,8 @@ Module: class extends Node {
             call suggest(fDecl, res, trail)
         )
 
+        // Resolve function call on global variable
+        body resolveCall(call, res, trail)
     }
 
     resolveType: func (type: BaseType, res: Resolver, trail: Trail) -> Int {
