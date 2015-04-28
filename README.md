@@ -4,25 +4,9 @@
 
 ### todo
 
-* ~~add cmake driver~~ -> Partially Finished
-* ~~fix variables with nested closure~~ -> Finished
-* ~~ooc-doc only starts with /\* and //~~ -> Finished
-* ~~inconsistent slice~~ -> Fixed
-* ~~match() case 1, 2, 3 =>~~ -> Finished
-* ~~fix reference to variables in nested closure -> Working~~ -> Fixed
-* ~~update grammar to avoid segment fault -> foo()(), a ::= 3 & call a as function~~ -> Fixed
-* ~~common root for numbers -> implementing in branch:commentroot~~ -> Mostly fixed
-* ~~layer-wise function search -> Working~~ -> Fixed
-* ~~version block -> parser can not catch correct structure for version{ if else }else{}~~ -> Fixed, but need review
 * inline function -> implementing
-* better array by template
-* add function type scope
-with restriction of generic type, we can do :
-extend ArrayList<Int>{
-    //something
-}
-and make this only work for `Int`
-* and more... check [commits list](https://github.com/zhaihj/rock/commits/master) to find more fixed issues in this fork
+* better array by template -> implementing
+* Template Class -> Considering
 
 
 # rock
