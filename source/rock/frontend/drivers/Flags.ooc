@@ -355,4 +355,3 @@ Flags: class {
     setMainModule: func (=mainModule)
 
 }
-
