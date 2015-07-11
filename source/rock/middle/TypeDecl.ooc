@@ -427,6 +427,24 @@ TypeDecl: abstract class extends Declaration {
     getModule: func -> Module { module }
     getType: func -> Type { type }
     getInstanceType: func -> Type {
+        meat := getNonMeta()
+        if (meat == null) {
+            meat = this
+        }
+        match meat {
+            case cd: CoverDecl =>
+                if (cd templateParent != null) {
+                    // we've been specialized, don't add typeArgs
+                    token printMessage("Not adding typeArgs to #{this}")
+                    return instanceType
+                }
+        }
+
+        if (instanceType getTypeArgs() == null && !typeArgs empty?()) {
+            for (typeArg in typeArgs) {
+                instanceType addTypeArg(TypeAccess new(BaseType new(typeArg getName(), typeArg token), typeArg token))
+            }
+        }
         instanceType
     }
     getThisDecl: func -> VariableDecl { thisDecl }
@@ -521,6 +539,15 @@ TypeDecl: abstract class extends Declaration {
             response := type resolve(trail, res)
             if (!response ok()) {
                 if (debugCondition() || res params veryVerbose) "====== Response of type of %s == %s" printfln(toString(), response toString())
+                trail pop(this)
+                return response
+            }
+        }
+
+        if (!instanceType isResolved()) {
+            response := instanceType resolve(trail, res)
+            if (!response ok()) {
+                if (debugCondition() || res params veryVerbose) "====== Response of instanceType of %s == %s" printfln(toString(), response toString())
                 trail pop(this)
                 return response
             }
@@ -631,10 +658,9 @@ TypeDecl: abstract class extends Declaration {
             }
         }
 
-        for (vDecl in variables) {
-            response := vDecl resolve(trail, res)
+        {
+            response := resolveVariables(trail, res)
             if (!response ok()) {
-                //if (debugCondition() || res params veryVerbose) printf("====== Response of vDecl %s of %s == %s\n", vDecl toString(), toString(), response toString())
                 trail pop(this)
                 return response
             }
@@ -671,6 +697,19 @@ TypeDecl: abstract class extends Declaration {
 
         return Response OK
 
+    }
+
+    resolveVariables: func (trail: Trail, res: Resolver) -> Response {
+        for (vDecl in variables) {
+            response := vDecl resolve(trail, res)
+            if (!response ok()) return response
+        }
+
+        Response OK
+    }
+
+    resolveVariable: func (trail: Trail, res: Resolver, vDecl: VariableDecl) -> Response {
+        vDecl resolve(trail, res)
     }
 
     checkAbstractFuncs: func (res: Resolver) -> Bool {

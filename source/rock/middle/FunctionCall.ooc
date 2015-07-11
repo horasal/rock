@@ -538,8 +538,8 @@ FunctionCall: class extends Expression {
 
                 if(returnType void?) {
                     parent := trail peek()
-                    if(!parent instanceOf?(Scope)) {
-                        res throwError(UseOfVoidExpression new(token, "Use of a void function call as an expression"))
+                    if(!parent instanceOf?(Scope) && !parent instanceOf?(CommaSequence)) {
+                        res throwError(UseOfVoidExpression new(token, "Use of a void function call `#{this}` as an expression"))
                     }
                 }
             }
@@ -857,6 +857,7 @@ FunctionCall: class extends Expression {
             if(ref returnType isGeneric()) {
                 if(res params veryVerbose) "\t$$$$ resolving returnType %s for %s" printfln(ref returnType toString(), toString())
                 returnType = resolveTypeArg(trail, res, ref returnType getName(), finalScore&)
+
                 if((finalScore == -1 || returnType == null) && res fatal) {
                     res throwError(InternalError new(token, "Not enough info to resolve return type %s of function call\n" format(ref returnType toString())))
                 }
@@ -868,12 +869,19 @@ FunctionCall: class extends Expression {
                 returnType resolve(trail, res)
             }
 
-            if(returnType != null && !realTypize(returnType, trail, res)) {
-                res wholeAgain(this, "because couldn't properly realTypize return type.")
-                returnType = null
-            }
-            if(returnType != null) {
-                if(debugCondition()) "Realtypized return of %s = %s, isResolved = %s ?\n" printfln(toString(), returnType toString(), returnType isResolved() toString())
+            if (returnType != null) {
+                if (debugCondition()) {
+                    token printMessage("before realtypizing, returnType = #{returnType}")
+                }
+
+                if(!realTypize(returnType, trail, res)) {
+                    res wholeAgain(this, "because couldn't properly realTypize return type.")
+                    returnType = null
+                }
+
+                if (debugCondition()) {
+                    token printMessage("after realtypizing, returnType = #{returnType}")
+                }
             }
 
             if(returnType) {
@@ -1101,12 +1109,20 @@ FunctionCall: class extends Expression {
 
             finalScore := 0
             typeResult := resolveTypeArg(trail, res, typeArg name, finalScore&)
+
             if(finalScore == -1) break
             if(typeResult) {
+                if (debugCondition()) {
+                    token printMessage("in #{this}, resolved typeArg #{typeArg}, result = #{typeResult}")
+                    token printMessage("owner is #{typeResult owner ? typeResult owner toString() : "<nil>"}")
+                }
                 result := match {
                     case typeResult instanceOf?(FuncType) || (typeResult pointerLevel() > 0) =>
                         VariableAccess new("Pointer", token)
                     case =>
+                        if (debugCondition()) {
+                            token printMessage("making an access to typeResult")
+                        }
                         VariableAccess new(typeResult, token)
                 }
 
@@ -1206,7 +1222,17 @@ FunctionCall: class extends Expression {
                         }
 
                         if(realCount == refCount) {
-                            if(debugCondition()) " >> Found arg-arg %s for typeArgName %s, returning %s" printfln(implArg toString(), typeArgName, result toString())
+                            if(debugCondition()) {
+                                token printMessage(" >> Found arg-arg #{implArg} (of type #{implArg class name}) for typeArgName #{typeArgName}, returning #{result}")
+                            }
+
+                            match implArg {
+                                case va: VariableAccess =>
+                                    if (va expr) {
+                                        result = result clone()
+                                        result owner = va expr
+                                    }
+                            }
                             combineTypesHard(res, this, combinedResult&, result, "arg-arg")
                         }
                     }
@@ -1316,7 +1342,9 @@ FunctionCall: class extends Expression {
                 }
             } else if(expr getType() != null) {
                 /* expr: Type<T>; expr myFunction() */
-                if(debugCondition()) "Looking for typeArg %s in expr %s" printfln(typeArgName, expr toString())
+                if(debugCondition()) {
+                    token printMessage("Looking for typeArg #{typeArgName} in expr #{expr} (of type #{expr getType()})")
+                }
                 result := expr getType() searchTypeArg(typeArgName, finalScore&)
                 if(finalScore == -1) return null // something has to be resolved further!
                 if(result) {

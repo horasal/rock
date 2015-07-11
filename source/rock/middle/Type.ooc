@@ -18,6 +18,8 @@ Type: abstract class extends Expression {
     SCORE_SEED := const static 1024
     NOLUCK_SCORE := const static -100000
 
+    owner: Expression = null
+
     init: func ~type (.token) {
         super(token)
     }
@@ -256,7 +258,8 @@ TypeAccess: class extends Type {
     inner: Type
 
     init: func ~typeAccess (=inner, .token) {
-        if(!inner) Exception new("Creating null typeAccess") throw()
+        if(!inner) raise("Creating null typeAccess")
+        if(inner == this) raise("Created cyclic typeAccess")
         super(token)
     }
 
@@ -291,7 +294,9 @@ TypeAccess: class extends Type {
     setRef: func (d: Declaration) { inner setRef(d) }
 
     clone: func -> This {
-        new(inner clone(), token)
+        copy := new(inner clone(), token)
+        copy owner = owner
+        copy
     }
 
     dereference: func -> Type { inner dereference() }
@@ -316,6 +321,10 @@ TypeAccess: class extends Type {
             return new(diff, token)
         }
         this
+    }
+
+    toString: func -> String {
+        inner toString()
     }
 
 }
