@@ -234,14 +234,15 @@ ClassDeclWriter: abstract class extends Skeleton {
             FunctionDeclWriter writeFuncPrototype(this, decl, (decl isFinal()) ? null : "_impl")
             current app(' '). openBlock()
 
+            for(stat in decl body) {
+                writeLine(stat)
+            }
+
             match (decl getName()) {
                 case ClassDecl DEFAULTS_FUNC_NAME || ClassDecl COVER_DEFAULTS_FUNC_NAME =>
                     writeDefaults(this, cDecl)
             }
 
-            for(stat in decl body) {
-                writeLine(stat)
-            }
             current closeBlock()
         }
 
