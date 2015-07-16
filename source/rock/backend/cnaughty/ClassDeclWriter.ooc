@@ -234,13 +234,14 @@ ClassDeclWriter: abstract class extends Skeleton {
             FunctionDeclWriter writeFuncPrototype(this, decl, (decl isFinal()) ? null : "_impl")
             current app(' '). openBlock()
 
-            for(stat in decl body) {
-                writeLine(stat)
-            }
 
             match (decl getName()) {
                 case ClassDecl DEFAULTS_FUNC_NAME || ClassDecl COVER_DEFAULTS_FUNC_NAME =>
-                    writeDefaults(this, cDecl)
+                    writeDefaults(this, cDecl, decl)
+                case => 
+                    for(stat in decl body) {
+                        writeLine(stat)
+                    }
             }
 
             current closeBlock()
@@ -248,7 +249,7 @@ ClassDeclWriter: abstract class extends Skeleton {
 
     }
 
-    writeDefaults: static func (this: Skeleton, cDecl: ClassDecl) {
+    writeDefaults: static func (this: Skeleton, cDecl: ClassDecl, decl: FunctionDecl) {
         meat := cDecl getNonMeta()
         superType := meat getSuperType()
         superRef  := meat getSuperRef()
@@ -287,6 +288,10 @@ ClassDeclWriter: abstract class extends Skeleton {
                 FunctionDeclWriter writeFullName(this, superDefaults)
                 current app("_impl(("). app(superDefaults owner getInstanceType()). app(") this);")
             }
+        }
+
+        for(stat in decl body) {
+            writeLine(stat)
         }
 
         for(vDecl in meat variables) {
