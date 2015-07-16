@@ -4,10 +4,9 @@ version (windows) {
     import os/Terminal
     import native/win32/types
 
-    // TODO: Try to use GetConsoleScreenBufferInfo to keep
-    // bg/fg color when using SetFg/BgColor functions
     GetStdHandle: extern func(mode: ULong) -> Handle
     SetConsoleTextAttribute: extern func(console: Handle, attr: UShort) -> Bool
+    GetConsoleScreenBufferInfo: extern func(console: Handle, info: PConsoleScreenBufferInfo) -> Bool
 
     STD_OUTPUT_HANDLE: extern ULong
 
@@ -21,7 +20,7 @@ version (windows) {
         init: func
 
         /* Color codes */
-        colors := [
+        colors := static const [
             0 , // black
             12, // red
             10, // green
@@ -43,26 +42,31 @@ version (windows) {
         }
 
         setColor: func (=fg, =bg) {
+            hStdOut := GetStdHandle(STD_OUTPUT_HANDLE)
+            info: ConsoleScreenBufferInfo
+            wColor: UShort = 0
+            if(GetConsoleScreenBufferInfo(hStdOut, info&)){
+                wColor = info attributes
+            }
             b := _lookupColor(bg)
             f := _lookupColor(fg)
-            if (b == -1) {
-                b = _lookupColor(Color black)
-            }
-            if (f == -1) {
-                f = _lookupColor(Color grey)
-            }
+            if (b != -1) {
+                wColor = wColor & 0xFF0F
+            } else { b = 0 }
+            if (f != -1) {
+                wColor = wColor & 0xFFF0
+            } else { f = 0 }
 
-            wColor: UShort = ((b & 0x0F) << 4) + (f & 0x0F)
-            hStdOut := GetStdHandle(STD_OUTPUT_HANDLE)
+            wColor = wColor | (((b & 0x0F) << 4) + (f & 0x0F))
             SetConsoleTextAttribute(hStdOut, wColor)
         }
 
         setFgColor: func (c: Color) {
-            setColor(c, bg)
+            setColor(c, (-1) as Color)
         }
 
         setBgColor: func (c: Color) {
-            setColor(fg, c)
+            setColor((-1) as Color, c)
         }
 
         setAttr: func (attribute: Attr) {
