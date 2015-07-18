@@ -15,7 +15,7 @@ version (windows) {
      */
     TerminalWin32: class extends TerminalHandler {
         bg := (-1) as Color
-        fg := (-1) as Coler
+        fg := (-1) as Color
 
         init: func
 
