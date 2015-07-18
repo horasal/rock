@@ -289,7 +289,7 @@ ArrayLiteral: class extends Literal {
         type = PointerType new(arrType inner, arrType token)
 
         createInitFunc := func -> FunctionDecl {
-            arrInitFunc := FunctionDecl new(generateTempName("arrInit"), token)
+            arrInitFunc := FunctionDecl new(generateTempName("_arrLitInit"), token)
             arrInitFunc isInline = true
             arrInitFunc hasBody = true
             arrInitFunc isGenerated = true
