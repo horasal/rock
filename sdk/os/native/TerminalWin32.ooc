@@ -14,8 +14,8 @@ version (windows) {
      * Implementation of TerminalHandler for Windows systems
      */
     TerminalWin32: class extends TerminalHandler {
-        bg := Color black
-        fg := Color white
+        bg := (-1) as Color
+        fg := (-1) as Coler
 
         init: func
 
@@ -62,11 +62,11 @@ version (windows) {
         }
 
         setFgColor: func (c: Color) {
-            setColor(c, (-1) as Color)
+            setColor(c, bg)
         }
 
         setBgColor: func (c: Color) {
-            setColor((-1) as Color, c)
+            setColor(fg, c)
         }
 
         setAttr: func (attribute: Attr) {
