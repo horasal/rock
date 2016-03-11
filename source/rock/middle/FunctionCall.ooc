@@ -6,7 +6,7 @@ import Visitor, Expression, FunctionDecl, Argument, Type,
        InterfaceDecl, Cast, NamespaceDecl, BaseType, FuncType, Return,
        TypeList, Scope, Block, StructLiteral, NullLiteral,
        IntLiteral, Ternary, ClassDecl, CoverDecl, ArrayLiteral, Module,
-       StringLiteral
+       StringLiteral, ArrayCreation
 import algo/typeAnalysis
 import text/EscapeSequence
 import tinker/[Response, Resolver, Trail, Errors]
@@ -343,6 +343,20 @@ FunctionCall: class extends Expression {
             }
 
             trail pop(this)
+        }
+
+        // handle generic-class(cover) array
+        if(expr instanceOf?(TypeAccess)){
+            if(expr as TypeAccess inner instanceOf?(ArrayType)){
+                // unwrap array creation
+                if(getName() == "new"){
+                    arrayType := expr as TypeAccess inner as ArrayType
+                    arrayCreation := ArrayCreation new(arrayType, token)
+                    trail peek() replace(this, arrayCreation)
+                    res wholeAgain(this, "just unwrapped array creation of generic classes")
+                    return Response OK
+                }
+            }
         }
 
         // resolve our expr. e.g. in
